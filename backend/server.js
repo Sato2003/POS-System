@@ -6,28 +6,37 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors());
-app.get('/api/debug/products', async (req, res) => {
-  try {
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(500).json({ error: 'Database not connected' });
-    }
-    const db = mongoose.connection.db;
-    const collections = await db.listCollections().toArray();
-    const products = await db.collection('products').find({}).limit(5).toArray();
-    res.json({
-      connected: true,
-      databaseName: db.databaseName,
-      collections: collections.map(c => c.name),
-      productCount: products.length,
-      sampleProducts: products
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// DEBUG ROUTE - MUST be before other routes
+app.get('/api/debug/products', async (req, res) => {
+    try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(500).json({ error: 'Database not connected', state: mongoose.connection.readyState });
+        }
+        const db = mongoose.connection.db;
+        const collections = await db.listCollections().toArray();
+        const products = await db.collection('products').find({}).limit(5).toArray();
+        res.json({
+            connected: true,
+            databaseName: db.databaseName,
+            collections: collections.map(c => c.name),
+            productCount: products.length,
+            sampleProducts: products
+        });
+    } catch (err) {
+        console.error('Debug error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Test route
+app.get('/ping', (req, res) => {
+    res.json({ pong: true, timestamp: Date.now() });
+});
+
+// Regular routes
 const productRoutes = require('./routes/productRoutes');
 const posRoutes = require('./routes/posRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
@@ -44,23 +53,7 @@ app.get('/', (req, res) => {
     res.json({ message: 'POS System API is running!' });
 });
 
-// Debug route - add this temporarily to check database content
-app.get('/api/debug/products', async (req, res) => {
-    try {
-        const db = mongoose.connection.db;
-        const collections = await db.listCollections().toArray();
-        const products = await db.collection('products').find({}).toArray();
-        res.json({
-            collections: collections.map(c => c.name),
-            productCount: products.length,
-            firstProduct: products[0] || null
-        });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// IMPORTANT: Use environment variable
+// Database connection
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
@@ -70,7 +63,6 @@ if (!MONGODB_URI) {
 
 console.log('Attempting to connect to MongoDB Atlas...');
 
-// ONLY ONE connect call - no options
 mongoose.connect(MONGODB_URI)
     .then(() => {
         console.log('✅ MongoDB Atlas connected successfully!');
