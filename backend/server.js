@@ -9,7 +9,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// DEBUG ROUTE - MUST be before other routes
+// SIMPLE TEST ROUTE - This MUST work
+app.get('/test', (req, res) => {
+    res.json({ status: 'ok', message: 'Server is working!' });
+});
+
+// DEBUG ROUTE - Check database content
 app.get('/api/debug/products', async (req, res) => {
     try {
         if (mongoose.connection.readyState !== 1) {
@@ -29,11 +34,6 @@ app.get('/api/debug/products', async (req, res) => {
         console.error('Debug error:', err);
         res.status(500).json({ error: err.message });
     }
-});
-
-// Test route
-app.get('/ping', (req, res) => {
-    res.json({ pong: true, timestamp: Date.now() });
 });
 
 // Regular routes
