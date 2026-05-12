@@ -4,6 +4,23 @@ import { printReceipt } from './ReceiptPrinter';
 import ImageUpload from './ImageUpload';
 import API_URL from '../config';
 
+// Modal component - must be defined before use
+const Modal = ({ show, onClose, title, children, width = '500px' }) => {
+    if (!show) return null;
+    
+    return (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+            <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '10px', maxWidth: width, width: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <h2 style={{ margin: 0 }}>{title}</h2>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+                </div>
+                {children}
+            </div>
+        </div>
+    );
+};
+
 // ==================== CUSTOM HOOKS ====================
 
 const useProducts = () => {
@@ -372,7 +389,7 @@ const ModernPOS = () => {
     // Derived Data
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
     const isAdmin = currentUser?.role === 'admin';
-    const API_URL = 'http://localhost:5000/api';
+    // const API_URL = 'http://localhost:5000/api';
     
     const lowStockProducts = products.filter(p => p.quantity <= (p.reorderLevel || 10));
     const filteredProducts = products.filter(p =>
