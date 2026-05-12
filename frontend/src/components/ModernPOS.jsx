@@ -276,22 +276,6 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => (
     </div>
 );
 
-const Modal = ({ show, onClose, title, children, width = '500px' }) => {
-    if (!show) return null;
-    
-    return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-            <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '10px', maxWidth: width, width: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
-                <h2>{title}</h2>
-                {children}
-                <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                    <button onClick={onClose} style={{ flex: 1, padding: '10px', backgroundColor: '#95a5a6', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Cancel</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
 const ProductFormFields = ({ formData, updateField, onImageUpload, onImageRemove, showBarcodeDisabled = false }) => (
     <div style={{ display: 'grid', gap: '15px' }}>
         <input 
