@@ -6,33 +6,20 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors());
-// TEMPORARY DEBUG ROUTE - Place this AFTER app.use(cors()) and BEFORE any other routes
-app.get('/api/db-check', async (req, res) => {
+app.get('/api/debug/products', async (req, res) => {
   try {
-    // Check connection state
-    const state = mongoose.connection.readyState;
-    const states = {
-      0: 'disconnected',
-      1: 'connected',
-      2: 'connecting',
-      3: 'disconnecting'
-    };
-    
-    if (state !== 1) {
-      return res.json({ connected: false, state: states[state] });
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(500).json({ error: 'Database not connected' });
     }
-    
     const db = mongoose.connection.db;
-    const dbName = db.databaseName;
     const collections = await db.listCollections().toArray();
-    const productsCount = await db.collection('products').countDocuments();
-    
+    const products = await db.collection('products').find({}).limit(5).toArray();
     res.json({
       connected: true,
-      databaseName: dbName,
+      databaseName: db.databaseName,
       collections: collections.map(c => c.name),
-      productsCount: productsCount,
-      sampleProduct: await db.collection('products').findOne({})
+      productCount: products.length,
+      sampleProducts: products
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
