@@ -675,8 +675,8 @@ const ModernPOS = () => {
                                     </span>
                                 </td>
                                 <td style={{ padding: '12px' }}>
-                                    <button onClick={() => handleEditClick(product)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>✏️</button>
-                                    <button onClick={() => handleDeleteProduct(product._id, product.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#e74c3c' }}>🗑️</button>
+                                    <button onClick={() => handleEditClick(product)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}>edit</button>
+                                    <button onClick={() => handleDeleteProduct(product._id, product.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#e74c3c' }}>delete</button>
                                 </td>
                             </tr>
                         ))}
