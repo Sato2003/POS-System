@@ -1,121 +1,87 @@
-## Folder Description
+# 🛒 Inventory & POS System
 
-### Root Directory: `POS-System/`
+A complete Point of Sale (POS) system with inventory management, barcode scanning, sales analytics, and thermal receipt printing. Built with the MERN stack (MongoDB, Express.js, React.js, Node.js).
 
-| File | Purpose |
-|------|---------|
-| `README.md` | Project documentation and overview |
-| `INSTALLATION.md` | Installation instructions |
-| `.gitignore` | Git ignore rules |
+## 📋 Table of Contents
 
----
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Endpoints](#api-endpoints)
+- [Screenshots](#screenshots)
+- [Folder Structure](#folder-structure)
+- [Contributing](#contributing)
+- [License](#license)
 
-### `frontend/`
+## ✨ Features
 
-Contains the client-side application developed using React.js. Handles user interface, interaction, and frontend logic.
+### 🛒 POS Interface
+- Barcode scanning (physical scanner or manual entry)
+- Real-time cart with quantity controls
+- Automatic price calculation with VAT (12%)
+- Product images display
+- Search and filter products
+- Responsive design for all devices
 
-#### `frontend/public/`
+### 📦 Inventory Management
+- Add, edit, and delete products
+- Stock tracking with automatic updates
+- Low stock alerts (configurable threshold)
+- Product categories
+- Drag & drop image upload
+- Bulk product management
 
-Stores static files accessible directly by the browser.
+### 📊 Sales Dashboard
+- Real-time sales analytics
+- Today's revenue and transactions
+- Total products and inventory value
+- Low stock items monitoring
+- Top selling products (30 days)
+- Visual KPI cards
 
-| File | Purpose |
-|------|---------|
-| `index.html` | Main HTML template where React app is mounted |
-| `test.html` | Testing page for experiments |
+### 🧾 Receipt Printing
+- 58mm thermal receipt printer support
+- Auto-cut functionality
+- BIR-compliant format (Philippines)
+- PHP currency with thousand separators
+- Automatic print on checkout
 
-#### `frontend/src/`
+### 🔐 User Management
+- User registration and login
+- JWT authentication
+- Role-based access (Admin / Cashier)
+- Password encryption (bcrypt)
 
-Main source code of the frontend application.
+## 🛠 Tech Stack
 
-##### `frontend/src/components/`
+### Backend
+- **Node.js** - Runtime environment
+- **Express.js** - Web framework
+- **MongoDB** - Database
+- **Mongoose** - ODM
+- **JWT** - Authentication
+- **bcryptjs** - Password hashing
 
-Reusable React components.
+### Frontend
+- **React.js** - UI library
+- **Axios** - HTTP client
+- **react-dropzone** - Image upload
 
-| File | Purpose |
-|------|---------|
-| `ModernPOS.jsx` | Main modern POS interface with tabs (Sales/Inventory/Dashboard) |
-| `POSInterface.jsx` | Alternative POS interface for sales transactions |
-| `SalesDashboard.jsx` | Sales statistics, analytics, and KPIs |
-| `UserProfile.jsx` | User profile management (Admin can manage all users) |
-| `RequestsManager.jsx` | Product request management (Admin approves/rejects) |
-| `Login.jsx` | User login page with blue theme |
-| `Register.jsx` | User registration page |
-| `ReceiptPrinter.js` | 58mm thermal receipt printing |
-| `ImageUpload.jsx` | Drag & drop image upload with compression |
+### Development Tools
+- **Nodemon** - Auto-restart server
+- **ESLint** - Code linting
 
-##### `frontend/src/` Root Files
+## 📦 Installation
 
-| File | Purpose |
-|------|---------|
-| `App.js` | Main React component with routing and navigation |
-| `App.css` | Global application styles |
-| `index.js` | React entry point |
-| `index.css` | Base CSS styles |
-| `reportWebVitals.js` | Performance metrics |
-| `setupTests.js` | Testing configuration |
+### Prerequisites
 
-##### `frontend/` Root Files
+- Node.js (v14 or higher)
+- MongoDB (local or Atlas)
+- npm or yarn
 
-| File | Purpose |
-|------|---------|
-| `package.json` | Dependencies and scripts |
-| `package-lock.json` | Locked dependency versions |
-| `.env` | Frontend environment variables (REACT_APP_API_URL) |
+### Step 1: Clone the repository
 
----
-
-### `backend/`
-
-Contains the server-side application for API handling, business logic, authentication, and database operations.
-
-#### `backend/models/`
-
-MongoDB database schemas.
-
-| File | Purpose |
-|------|---------|
-| `Product.js` | Product schema (name, barcode, price, stock, image) |
-| `Sale.js` | Sales transaction schema (invoice, items, totals) |
-| `User.js` | User schema (username, password, name, role) |
-| `ProductRequest.js` | Product request schema (pending requests from cashiers) |
-
-#### `backend/controllers/`
-
-Business logic and request handling.
-
-| File | Purpose |
-|------|---------|
-| `productController.js` | Product CRUD operations |
-| `posController.js` | POS sales and cart operations |
-| `analyticsController.js` | Sales analytics and KPIs |
-| `authController.js` | User authentication and management |
-| `requestController.js` | Product request operations |
-
-#### `backend/routes/`
-
-API endpoints definition.
-
-| File | Purpose |
-|------|---------|
-| `productRoutes.js` | Product API routes |
-| `posRoutes.js` | POS API routes (scan, checkout) |
-| `analyticsRoutes.js` | Analytics API routes |
-| `authRoutes.js` | Authentication API routes |
-| `requestRoutes.js` | Product request API routes |
-
-#### `backend/middleware/`
-
-Middleware functions.
-
-| File | Purpose |
-|------|---------|
-| `auth.js` | JWT token verification for protected routes |
-
-#### `backend/` Root Files
-
-| File | Purpose |
-|------|---------|
-| `server.js` | Main entry point, Express setup, MongoDB connection |
-| `.env` | Environment variables (PORT, MONGODB_URI, JWT_SECRET) |
-| `package.json` | Backend dependencies and scripts |
-| `package-lock.json` | Locked dependency versions |
+```bash
+git clone https://github.com/YOUR_USERNAME/inventory-pos-system.git
+cd inventory-pos-system

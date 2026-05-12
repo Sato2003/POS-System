@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config';
 
 const SalesDashboard = () => {
     const [kpi, setKpi] = useState({
@@ -14,7 +15,7 @@ const SalesDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
 
-    const API_URL = 'http://localhost:5000/api';
+    // const API_URL = 'http://localhost:5000/api';
 
     const formatCurrency = (amount) => {
         const num = Number(amount) || 0;
@@ -81,7 +82,7 @@ const SalesDashboard = () => {
                 
                 {/* Header with User Info */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-                    <h1 style={{ margin: 0 }}>📊 Sales Dashboard</h1>
+                    <h1 style={{ margin: 0 }}>Sales Dashboard</h1>
                     {user && (
                         <div style={{ backgroundColor: '#e9ecef', padding: '8px 15px', borderRadius: '20px' }}>
                             👤 {user.name} ({user.role})

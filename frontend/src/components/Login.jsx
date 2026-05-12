@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import API_URL from '../config';
 
 const Login = ({ onLogin, onSwitchToRegister }) => {
     const [username, setUsername] = useState('');
@@ -14,7 +15,8 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/login', {
+            // const response = await axios.post('http://localhost:5000/api/auth/login',{
+            const response = await axios.post(`${API_URL}/auth/login`, {
                 username,
                 password
             });
@@ -77,7 +79,7 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
                 <div style={{ padding: '20px 30px 30px 30px' }}>
                     {error && (
                         <div style={{ padding: '12px', backgroundColor: '#fee2e2', borderLeft: '4px solid #dc3545', color: '#dc3545', borderRadius: '8px', marginBottom: '20px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span>⚠️</span> {error}
+                            <span></span> {error}
                         </div>
                     )}
                     
@@ -101,7 +103,7 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
                         
                         <button type="submit" disabled={loading} style={{ width: '100%', padding: '14px', backgroundColor: '#2a5298', color: 'white', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s', opacity: loading ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
                             onMouseEnter={(e) => e.target.style.backgroundColor = '#1e3c72'} onMouseLeave={(e) => e.target.style.backgroundColor = '#2a5298'}>
-                            {loading ? <>⏳ Logging in...</> : <>Login to POS</>}
+                            {loading ? <>Logging in...</> : <>Login to POS</>}
                         </button>
                     </form>
                     

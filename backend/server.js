@@ -64,7 +64,7 @@ app.get('/api/debug/products', async (req, res) => {
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-    console.error('❌ ERROR: MONGODB_URI environment variable is not set!');
+    console.error(' ERROR: MONGODB_URI environment variable is not set!');
     process.exit(1);
 }
 
@@ -73,15 +73,15 @@ console.log('Attempting to connect to MongoDB Atlas...');
 // ONLY ONE connect call - no options
 mongoose.connect(MONGODB_URI)
     .then(() => {
-        console.log('✅ MongoDB Atlas connected successfully!');
-        console.log('📊 Database:', mongoose.connection.db.databaseName);
+        console.log('MongoDB Atlas connected successfully!');
+        console.log('Database:', mongoose.connection.db.databaseName);
     })
     .catch(err => {
-        console.error('❌ MongoDB connection error:', err.message);
+        console.error(' MongoDB connection error:', err.message);
         process.exit(1);
     });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(` Server running on http://localhost:${PORT}`);
 });

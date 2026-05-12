@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import API_URL from '../config';
 
 const UserProfile = ({ user, onLogout }) => {
     const [users, setUsers] = useState([]);
@@ -21,7 +22,7 @@ const UserProfile = ({ user, onLogout }) => {
         role: 'cashier'
     });
 
-    const API_URL = 'http://localhost:5000/api';
+    // const API_URL = 'http://localhost:5000/api';
     const isAdmin = user?.role === 'admin';
 
     const fetchUsers = useCallback(async () => {
@@ -45,19 +46,19 @@ const UserProfile = ({ user, onLogout }) => {
 
     const handleAddUser = async () => {
         if (!newUserForm.name || !newUserForm.username || !newUserForm.password) {
-            setMessage('❌ Please fill all required fields');
+            setMessage('Please fill all required fields');
             setTimeout(() => setMessage(''), 2000);
             return;
         }
 
         if (newUserForm.password !== newUserForm.confirmPassword) {
-            setMessage('❌ Passwords do not match');
+            setMessage('Passwords do not match');
             setTimeout(() => setMessage(''), 2000);
             return;
         }
 
         if (newUserForm.password.length < 4) {
-            setMessage('❌ Password must be at least 4 characters');
+            setMessage('Password must be at least 4 characters');
             setTimeout(() => setMessage(''), 2000);
             return;
         }
@@ -71,7 +72,7 @@ const UserProfile = ({ user, onLogout }) => {
             });
 
             if (response.data.success) {
-                setMessage('✅ User added successfully!');
+                setMessage('User added successfully!');
                 setTimeout(() => setMessage(''), 2000);
                 setShowAddModal(false);
                 setNewUserForm({
@@ -85,9 +86,9 @@ const UserProfile = ({ user, onLogout }) => {
             }
         } catch (error) {
             if (error.response?.data?.error?.includes('duplicate')) {
-                setMessage('❌ Username already exists');
+                setMessage('Username already exists');
             } else {
-                setMessage('❌ Error adding user');
+                setMessage('Error adding user');
             }
             setTimeout(() => setMessage(''), 2000);
         }
@@ -108,12 +109,12 @@ const UserProfile = ({ user, onLogout }) => {
             await axios.put(`${API_URL}/auth/users/${editingUser._id}`, editForm, {
                 headers: { 'x-auth-token': localStorage.getItem('token') }
             });
-            setMessage('✅ User updated successfully!');
+            setMessage('User updated successfully!');
             setTimeout(() => setMessage(''), 2000);
             setShowEditModal(false);
             fetchUsers();
         } catch (error) {
-            setMessage('❌ Error updating user');
+            setMessage('Error updating user');
             setTimeout(() => setMessage(''), 2000);
         }
     };
@@ -124,11 +125,11 @@ const UserProfile = ({ user, onLogout }) => {
                 await axios.delete(`${API_URL}/auth/users/${userId}`, {
                     headers: { 'x-auth-token': localStorage.getItem('token') }
                 });
-                setMessage('✅ User deleted successfully!');
+                setMessage('User deleted successfully!');
                 setTimeout(() => setMessage(''), 2000);
                 fetchUsers();
             } catch (error) {
-                setMessage('❌ Error deleting user');
+                setMessage('Error deleting user');
                 setTimeout(() => setMessage(''), 2000);
             }
         }
@@ -174,8 +175,8 @@ const UserProfile = ({ user, onLogout }) => {
                 {message && (
                     <div style={{
                         padding: '10px',
-                        backgroundColor: message.includes('✅') ? '#d4edda' : '#f8d7da',
-                        color: message.includes('✅') ? '#155724' : '#721c24',
+                        backgroundColor: message.includes('') ? '#d4edda' : '#f8d7da',
+                        color: message.includes('') ? '#155724' : '#721c24',
                         borderRadius: '5px',
                         marginBottom: '20px'
                     }}>{message}</div>

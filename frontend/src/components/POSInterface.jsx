@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { printReceipt } from './ReceiptPrinter';
 import ImageUpload from './ImageUpload';
+import API_URL from '../config';
 
 const POSInterface = () => {
     const [cart, setCart] = useState([]);
@@ -22,7 +23,7 @@ const POSInterface = () => {
     });
     const [quickQty, setQuickQty] = useState({});
 
-    const API_URL = 'http://localhost:5000/api';
+    // const API_URL = 'http://localhost:5000/api';
 
     // Get current user role
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
