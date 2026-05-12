@@ -5,8 +5,7 @@ const ImageUpload = ({ onImageUpload, currentImageUrl, onRemove }) => {
     const [preview, setPreview] = useState(currentImageUrl || '');
     const [uploading, setUploading] = useState(false);
 
-    // Compress image before converting to base64
-    const compressImage = (file, maxWidth = 300, maxHeight = 300, quality = 0.7) => {
+    const compressImage = (file, maxWidth = 200, maxHeight = 200, quality = 0.7) => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -90,12 +89,11 @@ const ImageUpload = ({ onImageUpload, currentImageUrl, onRemove }) => {
                     style={{
                         border: '2px dashed #ccc',
                         borderRadius: '8px',
-                        padding: '30px',
+                        padding: '20px',
                         textAlign: 'center',
                         cursor: 'pointer',
                         backgroundColor: isDragActive ? '#e3f2fd' : '#fafafa',
-                        transition: 'all 0.3s',
-                        marginBottom: '10px'
+                        transition: 'all 0.3s'
                     }}
                 >
                     <input {...getInputProps()} />
@@ -103,20 +101,20 @@ const ImageUpload = ({ onImageUpload, currentImageUrl, onRemove }) => {
                         <p style={{ color: '#007bff' }}>Drop the image here...</p>
                     ) : (
                         <div>
-                            <div style={{ fontSize: '48px', marginBottom: '10px' }}>📷</div>
+                            <div style={{ fontSize: '40px', marginBottom: '5px' }}></div>
                             <p>Drag & drop an image here, or click to select</p>
-                            <p style={{ fontSize: '12px', color: '#666' }}>Supports: JPG, PNG, GIF (Max 2MB after compression)</p>
+                            <p style={{ fontSize: '11px', color: '#666' }}>Supports: JPG, PNG, GIF (Max 2MB)</p>
                         </div>
                     )}
                 </div>
             ) : (
-                <div style={{ position: 'relative', display: 'inline-block', marginBottom: '10px' }}>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
                     <img
                         src={preview}
-                        alt="Product preview"
+                        alt="Preview"
                         style={{
-                            width: '100px',
-                            height: '100px',
+                            width: '80px',
+                            height: '80px',
                             objectFit: 'cover',
                             borderRadius: '8px',
                             border: '1px solid #ddd'
@@ -136,12 +134,10 @@ const ImageUpload = ({ onImageUpload, currentImageUrl, onRemove }) => {
                             color: 'white',
                             border: 'none',
                             borderRadius: '50%',
-                            width: '24px',
-                            height: '24px',
+                            width: '22px',
+                            height: '22px',
                             cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
+                            fontSize: '14px'
                         }}
                     >
                         ×
@@ -149,15 +145,10 @@ const ImageUpload = ({ onImageUpload, currentImageUrl, onRemove }) => {
                 </div>
             )}
             
-            {uploading && (
-                <p style={{ fontSize: '12px', color: '#007bff', marginTop: '5px' }}>
-                    Processing image...
-                </p>
-            )}
+            {uploading && <p style={{ fontSize: '12px', color: '#007bff', marginTop: '5px' }}>Processing image...</p>}
             
-            {/* Optional: Manual URL input as fallback */}
             <div style={{ fontSize: '11px', color: '#666', marginTop: '8px' }}>
-                💡 Tip: Drag & drop an image file, or use URL below
+                Tip: Drag & drop an image or paste a URL below
             </div>
         </div>
     );

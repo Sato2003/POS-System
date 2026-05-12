@@ -138,7 +138,7 @@ const SalesDashboard = () => {
                     {/* Low Stock Alerts */}
                     <div style={cardStyle}>
                         <h2 style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span>⚠️</span> Low Stock Alerts
+                            <span></span> Low Stock Alerts
                             {lowStockProducts.length > 0 && (
                                 <span style={{
                                     backgroundColor: '#e74c3c',
@@ -153,7 +153,7 @@ const SalesDashboard = () => {
                         </h2>
                         {lowStockProducts.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '40px', color: '#27ae60' }}>
-                                ✅ All products have sufficient stock!
+                                All products have sufficient stock!
                             </div>
                         ) : (
                             <div>
@@ -179,7 +179,7 @@ const SalesDashboard = () => {
 
                     {/* Top Selling Products */}
                     <div style={cardStyle}>
-                        <h2 style={{ marginBottom: '15px' }}>🏆 Top Selling Products (30 days)</h2>
+                        <h2 style={{ marginBottom: '15px' }}>Top Selling Products (30 days)</h2>
                         {topProducts.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
                                 No sales data yet. Make a sale to see data here.
@@ -190,7 +190,7 @@ const SalesDashboard = () => {
                                     <div key={index} style={topProductStyle}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                             <span style={{ fontSize: '24px' }}>
-                                                {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '📦'}
+                                                {index === 0 ? '' : index === 1 ? '' : index === 2 ? '' : ''}
                                             </span>
                                             <div>
                                                 <div style={{ fontWeight: 'bold' }}>{product.name}</div>

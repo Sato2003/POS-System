@@ -32,7 +32,7 @@ export const printReceipt = (saleData) => {
     
     
     receipt += '================================\n';
-    receipt += center('BLURRED INVENTORY') + '\n';
+    receipt += center('POS SYSTEM') + '\n';
     receipt += center('123 Business Street') + '\n';
     receipt += center('Tel: (123) 456-7890') + '\n';
     receipt += center('VAT REG: 12-345-6789') + '\n';

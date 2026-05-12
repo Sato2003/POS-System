@@ -92,12 +92,12 @@ const POSInterface = () => {
                 imageUrl: newProduct.imageUrl || ''
             });
             
-            alert('✅ Product added successfully!');
+            alert('Product added successfully!');
             setNewProduct({ name: '', barcode: '', sellingPrice: '', costPrice: '', quantity: '', category: '', imageUrl: '' });
             setShowForm(false);
             loadProducts();
         } catch (error) {
-            alert('❌ Error: ' + (error.response?.data?.error || 'Check if barcode is unique'));
+            alert('Error: ' + (error.response?.data?.error || 'Check if barcode is unique'));
         }
     };
 
@@ -131,12 +131,12 @@ const POSInterface = () => {
                 imageUrl: newProduct.imageUrl || ''
             });
             
-            alert('✅ Product updated successfully!');
+            alert('Product updated successfully!');
             setEditingProduct(null);
             setNewProduct({ name: '', barcode: '', sellingPrice: '', costPrice: '', quantity: '', category: '', imageUrl: '' });
             loadProducts();
         } catch (error) {
-            alert('❌ Error updating product');
+            alert('Error updating product');
         }
     };
 
@@ -144,10 +144,10 @@ const POSInterface = () => {
         if (window.confirm(`Delete "${productName}"?`)) {
             try {
                 await axios.delete(`${API_URL}/products/${productId}`);
-                alert('✅ Product deleted');
+                alert('Product deleted');
                 loadProducts();
             } catch (error) {
-                alert('❌ Error deleting product');
+                alert('Error deleting product');
             }
         }
     };
@@ -180,7 +180,7 @@ const POSInterface = () => {
             setCart([...cart, newItem]);
         }
         
-        setMessage(`✅ Added: ${product.name}`);
+        setMessage(`Added: ${product.name}`);
         setTimeout(() => setMessage(''), 1500);
     };
 
@@ -191,7 +191,7 @@ const POSInterface = () => {
                 addToCart(product);
                 setBarcode('');
             } else {
-                alert('❌ Product not found!');
+                alert('Product not found!');
                 setBarcode('');
             }
         }
@@ -250,12 +250,12 @@ const POSInterface = () => {
                 
                 printReceipt(receiptData);
                 
-                alert(`✅ Sale Complete! Invoice: ${response.data.invoiceNumber}`);
+                alert(`Sale Complete! Invoice: ${response.data.invoiceNumber}`);
                 setCart([]);
                 loadProducts();
             }
         } catch (error) {
-            alert('❌ Checkout failed');
+            alert('Checkout failed');
         }
     };
 
@@ -434,7 +434,7 @@ const POSInterface = () => {
                                 
                                 {(showForm || editingProduct) && (
                                     <div style={{ marginTop: '15px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', border: '1px solid #ddd' }}>
-                                        <h3>{editingProduct ? '✏️ EDIT PRODUCT' : '➕ ADD NEW PRODUCT'}</h3>
+                                        <h3>{editingProduct ? 'EDIT PRODUCT' : 'ADD NEW PRODUCT'}</h3>
                                         <input type="text" placeholder="Product Name *" value={newProduct.name} onChange={(e) => setNewProduct({...newProduct, name: e.target.value})} style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }} />
                                         <input type="text" placeholder="Barcode *" value={newProduct.barcode} onChange={(e) => setNewProduct({...newProduct, barcode: e.target.value})} style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }} />
                                         <input type="number" placeholder="Selling Price *" value={newProduct.sellingPrice} onChange={(e) => setNewProduct({...newProduct, sellingPrice: e.target.value})} style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }} />
@@ -475,10 +475,10 @@ const POSInterface = () => {
                         overflow: 'auto',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}>
-                        <h2>📦 PRODUCTS</h2>
+                        <h2>PRODUCTS</h2>
                         <input 
                             type="text" 
-                            placeholder="🔍 Search by name or barcode..." 
+                            placeholder="Search by name or barcode..." 
                             value={search} 
                             onChange={(e) => setSearch(e.target.value)} 
                             style={{ width: '100%', padding: '10px', marginBottom: '15px', border: '1px solid #ddd', borderRadius: '5px' }} 
@@ -504,7 +504,7 @@ const POSInterface = () => {
                                         {p.imageUrl && p.imageUrl !== '' ? (
                                             <img src={p.imageUrl} alt={p.name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
                                         ) : (
-                                            <div style={{ width: '60px', height: '60px', backgroundColor: '#f0f0f0', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px' }}>📦</div>
+                                            <div style={{ width: '60px', height: '60px', backgroundColor: '#f0f0f0', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px' }}></div>
                                         )}
                                         <div>
                                             <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{p.name}</div>
@@ -522,7 +522,7 @@ const POSInterface = () => {
                                             {isAdmin && (
                                                 <>
                                                     <button onClick={() => handleEditProduct(p)} style={editButtonStyle}>✏️</button>
-                                                    <button onClick={() => handleDeleteProduct(p._id, p.name)} style={deleteButtonStyle}>🗑️</button>
+                                                    <button onClick={() => handleDeleteProduct(p._id, p.name)} style={deleteButtonStyle}></button>
                                                 </>
                                             )}
                                         </div>

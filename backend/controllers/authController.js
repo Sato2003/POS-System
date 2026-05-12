@@ -82,3 +82,45 @@ exports.getCurrentUser = async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 };
+
+// Get all users (Admin only)
+exports.getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.json({ success: true, data: users });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+// Update user (Admin only)
+exports.updateUser = async (req, res) => {
+    try {
+        const { name, username, role } = req.body;
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            { name, username, role },
+            { new: true, runValidators: true }
+        ).select('-password');
+        
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+        res.json({ success: true, data: user });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+// Delete user (Admin only)
+exports.deleteUser = async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+        res.json({ success: true, message: 'User deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
