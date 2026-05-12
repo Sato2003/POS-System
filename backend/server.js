@@ -9,7 +9,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
 const productRoutes = require('./routes/productRoutes');
 const posRoutes = require('./routes/posRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
@@ -26,7 +25,7 @@ app.get('/', (req, res) => {
     res.json({ message: 'POS System API is running!' });
 });
 
-// IMPORTANT: Always use environment variable, no fallback to localhost
+// IMPORTANT: Use environment variable
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
@@ -36,10 +35,8 @@ if (!MONGODB_URI) {
 
 console.log('Attempting to connect to MongoDB Atlas...');
 
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+// REMOVED the deprecated options - they are now default
+mongoose.connect(MONGODB_URI)
 .then(() => {
     console.log('✅ MongoDB Atlas connected successfully!');
     console.log('📊 Database:', mongoose.connection.db.databaseName);
