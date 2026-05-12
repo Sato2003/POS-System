@@ -25,6 +25,22 @@ app.get('/', (req, res) => {
     res.json({ message: 'POS System API is running!' });
 });
 
+// Debug route - add this temporarily to check database content
+app.get('/api/debug/products', async (req, res) => {
+    try {
+        const db = mongoose.connection.db;
+        const collections = await db.listCollections().toArray();
+        const products = await db.collection('products').find({}).toArray();
+        res.json({
+            collections: collections.map(c => c.name),
+            productCount: products.length,
+            firstProduct: products[0] || null
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // IMPORTANT: Use environment variable
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -35,16 +51,16 @@ if (!MONGODB_URI) {
 
 console.log('Attempting to connect to MongoDB Atlas...');
 
-// REMOVED the deprecated options - they are now default
+// ONLY ONE connect call - no options
 mongoose.connect(MONGODB_URI)
-.then(() => {
-    console.log('✅ MongoDB Atlas connected successfully!');
-    console.log('📊 Database:', mongoose.connection.db.databaseName);
-})
-.catch(err => {
-    console.error('❌ MongoDB connection error:', err.message);
-    process.exit(1);
-});
+    .then(() => {
+        console.log('✅ MongoDB Atlas connected successfully!');
+        console.log('📊 Database:', mongoose.connection.db.databaseName);
+    })
+    .catch(err => {
+        console.error('❌ MongoDB connection error:', err.message);
+        process.exit(1);
+    });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
