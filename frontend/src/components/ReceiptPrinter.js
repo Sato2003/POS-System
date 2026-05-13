@@ -244,7 +244,7 @@ const getExpirationDate = () => {
                 }
                 body {
                     font-family: 'Courier New', monospace;
-                    font-size: 10px;
+                    font-size: 9px;
                     width: 58mm;
                     margin: 0;
                     padding: 2mm;
@@ -264,7 +264,7 @@ const getExpirationDate = () => {
                     padding: 0;
                     white-space: pre-wrap;
                     font-family: 'Courier New', monospace;
-                    font-size: 10px;
+                    font-size: 9px;
                     line-height: 1.25;
                 }
             </style>
