@@ -308,7 +308,7 @@ const RequestsManager = () => {
                                         )}
                                         <tr style={{ borderBottom: '1px solid #eee' }}>
                                             <td style={{ padding: '10px', fontWeight: 'bold' }}>Quantity:</td>
-                                            <td style={{ padding: '10px' }}>{selectedRequest.quantity} units</td>
+                                            <td style={{ padding: '10px' }}>{selectedRequest.quantity} units\n</td>
                                         </tr>
                                     </tbody>
                                 </table>
