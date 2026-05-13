@@ -11,7 +11,12 @@ const app = express();
 
 // CORS configuration - Allow Vercel frontend
 app.use(cors({
-    origin: ['https://pos-system-inventory.vercel.app', 'http://localhost:3000', 'http://localhost:5000'],
+    origin: [
+        'https://pos-system-nu-one.vercel.app',
+        'https://pos-system-inventory.vercel.app',
+        'http://localhost:3000',
+        'http://localhost:5000'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization']
