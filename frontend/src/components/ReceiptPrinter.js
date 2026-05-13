@@ -13,7 +13,7 @@ export const printReceipt = (saleData) => {
     const formatMoney = (amount) => {
         const num = Number(amount) || 0;
         return 'PHP ' + num.toLocaleString('en-PH', { 
-            minimumFractionDigits: 2, 
+            minimumFractionDigits: 2,
             maximumFractionDigits: 2 
         });
     };
