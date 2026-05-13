@@ -424,7 +424,7 @@ const ModernPOS = () => {
             clearCart();
             loadProducts();
         }
-    } catch (error) { alert('Checkout failed'); }
+    } catch (error) { alert('Checkout failed: ' + error.message); }
 };
 
     const handleEditClick = (product) => {
