@@ -408,6 +408,22 @@ const ModernPOS = () => {
         return acc;
     }, {});
 
+    // Group products by category
+const groupProductsByCategory = (products) => {
+    const grouped = {};
+    products.forEach(product => {
+        const category = product.category || 'General';
+        if (!grouped[category]) {
+            grouped[category] = [];
+        }
+        grouped[category].push(product);
+    });
+    return grouped;
+};
+
+const groupedProducts = groupProductsByCategory(filteredProducts);
+const categories = Object.keys(groupedProducts).sort();
+    
     // Handlers
     const handleScan = async (e) => {
         if (e.key === 'Enter' && barcode) {
@@ -587,12 +603,36 @@ const ModernPOS = () => {
                         style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px' }} 
                     />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '15px' }}>
-                    {filteredProducts.map(product => (
-                        <ProductCard key={product._id} product={product} onAddToCart={(p) => addToCart(p, p.quantity)} />
-                    ))}
-                </div>
+                {categories.length === 0 ? (
+    <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No products found</div>
+) : (
+    categories.map(category => (
+        <div key={category} style={{ marginBottom: '30px' }}>
+            <div style={{ 
+                backgroundColor: '#3498db', 
+                color: 'white', 
+                padding: '10px 15px', 
+                borderRadius: '8px',
+                marginBottom: '15px',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+            }}>
+                <span>📁</span> {category}
+                <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>
+                    {groupedProducts[category].length} items
+                </span>
             </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '15px' }}>
+                {groupedProducts[category].map(product => (
+                    <ProductCard key={product._id} product={product} onAddToCart={(p) => addToCart(p, p.quantity)} />
+                ))}
+            </div>
+        </div>
+    ))
+)}
 
             {/* Cart */}
             <div style={{ flex: 1, backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
