@@ -145,13 +145,131 @@ const Header = ({ activeTab, setActiveTab, isAdmin, lowStockCount, isRestockMode
 );
 
 const ProductCard = ({ product, onAddToCart }) => (
-    <div style={{ border: '1px solid #e0e0e0', borderRadius: '8px', padding: '15px', cursor: 'pointer' }}>
-        {product.imageUrl && <img src={product.imageUrl} alt={product.name} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', marginBottom: '10px' }} onError={(e) => { e.target.style.display = 'none'; }} />}
-        <div style={{ fontWeight: 'bold' }}>{product.name}</div>
-        <div style={{ fontSize: '12px', color: '#666' }}>{product.barcode}</div>
-        <div style={{ fontSize: '12px' }}>Stock: {formatNumber(product.quantity)}</div>
-        <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2ecc71' }}>{formatCurrency(product.sellingPrice)}</div>
-        <button onClick={() => onAddToCart(product)} style={{ marginTop: '10px', width: '100%', padding: '8px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Add to Cart</button>
+    <div style={{
+        border: '1px solid #e0e0e0',
+        borderRadius: '12px',
+        padding: '15px',
+        cursor: 'pointer',
+        backgroundColor: 'white',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '280px', // Fixed height for all cards
+        width: '100%',
+        boxSizing: 'border-box'
+    }}
+    onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-4px)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    }}
+    onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
+    }}>
+        {/* Image Section - Fixed height */}
+        <div style={{
+            height: '120px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '10px',
+            overflow: 'hidden'
+        }}>
+            {product.imageUrl ? (
+                <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain',
+                        borderRadius: '8px'
+                    }}
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                />
+            ) : (
+                <div style={{
+                    width: '80px',
+                    height: '80px',
+                    backgroundColor: '#f0f0f0',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '40px'
+                }}>
+                    🛒
+                </div>
+            )}
+        </div>
+
+        {/* Product Name - Fixed height with ellipsis */}
+        <div style={{
+            fontWeight: 'bold',
+            fontSize: '14px',
+            marginBottom: '5px',
+            height: '40px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            lineHeight: '1.3'
+        }}>
+            {product.name}
+        </div>
+
+        {/* Barcode */}
+        <div style={{
+            fontSize: '11px',
+            color: '#666',
+            marginBottom: '5px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+        }}>
+            {product.barcode}
+        </div>
+
+        {/* Stock Status */}
+        <div style={{
+            fontSize: '12px',
+            marginBottom: '8px',
+            color: product.quantity <= (product.reorderLevel || 10) ? '#e74c3c' : '#27ae60'
+        }}>
+            Stock: {formatNumber(product.quantity)} {product.quantity <= (product.reorderLevel || 10) && '⚠️ Low Stock'}
+        </div>
+
+        {/* Price */}
+        <div style={{
+            fontSize: '20px',
+            fontWeight: 'bold',
+            color: '#2ecc71',
+            marginBottom: '12px'
+        }}>
+            {formatCurrency(product.sellingPrice)}
+        </div>
+
+        {/* Button - Fixed at bottom */}
+        <button
+            onClick={() => onAddToCart(product)}
+            style={{
+                marginTop: 'auto',
+                width: '100%',
+                padding: '10px',
+                backgroundColor: '#3498db',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#2980b9'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#3498db'}
+        >
+            Add to Cart
+        </button>
     </div>
 );
 
