@@ -605,6 +605,7 @@ const ModernPOS = () => {
                             <div style={{ overflowX: 'auto' }}>
                                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                     <thead>
+                                        <table>
                                         <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #ddd' }}>
                                             <th style={{ padding: '12px', textAlign: 'left' }}>PRODUCT</th>
                                             <th style={{ padding: '12px', textAlign: 'left' }}>BARCODE</th>
@@ -612,6 +613,7 @@ const ModernPOS = () => {
                                             <th style={{ padding: '12px', textAlign: 'left' }}>STOCK</th>
                                             <th style={{ padding: '12px', textAlign: 'left' }}>STATUS</th>
                                             <th style={{ padding: '12px', textAlign: 'left' }}>ACTIONS</th>
+                                            </tr>
                                         </table>
                                     </thead>
                                     <tbody>
