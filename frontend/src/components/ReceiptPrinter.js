@@ -7,11 +7,10 @@ export const printReceipt = (saleData) => {
         total,
         customerName,
         cashierName,
-        paymentMethod,
         change = 0,
         cashAmount = 0,
         baggerName = 'NINO BACALSO',
-        terminalId = 'POS_PARI2',
+        terminalId = 'POS PAR12',
         transNumber = invoiceNumber,
         siNumber = invoiceNumber
     } = saleData;
@@ -48,9 +47,9 @@ export const printReceipt = (saleData) => {
     }
 
     // Business Information
-    const businessName = "FRINCE WAREHOUSE CLUB MANDAUE INC";
+    const businessName = "FRINCE WAREHOUSE CLUB MANDAUE";
     const address = "Hi-way, Bulacao, Cebu City";
-    const vatTin = "VAT REG TIN: 001-588-219-003";
+    const vatTin = "VAT REG TIN: 001-588-219-005";
     const serialNo = "SN: Z2APETRG MIN: 120277459";
 
     let receipt = '';
@@ -77,7 +76,7 @@ export const printReceipt = (saleData) => {
     receipt += `Bus. Style: ---\n`;
     receipt += thinLine() + '\n';
 
-    // Items Header
+    // Items Header - Fixed alignment
     receipt += padText('ITEM', 28) + padText('QTY', 5) + padText('PRICE', 8) + padText('TOTAL', 8) + '\n';
     receipt += thinLine() + '\n';
 
@@ -100,7 +99,7 @@ export const printReceipt = (saleData) => {
     receipt += padText(`${formatNumber(totalItems)} Item(s)`, 49) + '\n';
     receipt += line() + '\n';
 
-    // Payment Summary
+    // Payment Summary - Fixed to show values
     receipt += padText(`AMOUNT DUE:`, 35) + padText(formatMoney(total), 13) + '\n';
     receipt += padText(`Cash:`, 35) + padText(formatMoney(cashAmount || total), 13) + '\n';
     receipt += padText(`CHANGE:`, 35) + padText(formatMoney(change), 13) + '\n';
@@ -142,7 +141,7 @@ export const printReceipt = (saleData) => {
     receipt += center('*** END OF RECEIPT ***') + '\n';
     receipt += '\n\n';
 
-    // Print without pop-up blocker issues
+    // Print
     const printWindow = window.open('', '_blank', 'width=450,height=700');
 
     if (!printWindow) {
