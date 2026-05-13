@@ -35,12 +35,12 @@ const RequestsManager = () => {
                     headers: { 'x-auth-token': token }
                 });
                 if (response.data.success) {
-                    setMessage('✅ Product approved and added to inventory!');
+                    setMessage('Product approved and added to inventory!');
                     fetchRequests();
                     setTimeout(() => setMessage(''), 3000);
                 }
             } catch (error) {
-                setMessage('❌ Error approving request');
+                setMessage('Error approving request');
                 setTimeout(() => setMessage(''), 3000);
             }
         }
@@ -53,12 +53,12 @@ const RequestsManager = () => {
                     headers: { 'x-auth-token': token }
                 });
                 if (response.data.success) {
-                    setMessage('❌ Request rejected');
+                    setMessage('Request rejected');
                     fetchRequests();
                     setTimeout(() => setMessage(''), 3000);
                 }
             } catch (error) {
-                setMessage('❌ Error rejecting request');
+                setMessage('Error rejecting request');
                 setTimeout(() => setMessage(''), 3000);
             }
         }
@@ -135,7 +135,6 @@ const RequestsManager = () => {
                                                 justifyContent: 'center',
                                                 fontSize: '40px'
                                             }}>
-                                                🖼️
                                             </div>
                                         )}
                                     </div>
@@ -274,7 +273,6 @@ const RequestsManager = () => {
                                         fontSize: '60px',
                                         margin: '0 auto'
                                     }}>
-                                        🖼️
                                     </div>
                                 )}
                             </div>
@@ -304,11 +302,11 @@ const RequestsManager = () => {
                                             <tr style={{ borderBottom: '1px solid #eee' }}>
                                                 <td style={{ padding: '10px', fontWeight: 'bold' }}>Cost Price:</td>
                                                 <td style={{ padding: '10px' }}>₱{selectedRequest.costPrice}</td>
-                                            <tr>
+                                            </tr>
                                         )}
                                         <tr style={{ borderBottom: '1px solid #eee' }}>
                                             <td style={{ padding: '10px', fontWeight: 'bold' }}>Quantity:</td>
-                                            <td style={{ padding: '10px' }}>{selectedRequest.quantity} units\n</td>
+                                            <td style={{ padding: '10px' }}>{selectedRequest.quantity} units</td>
                                         </tr>
                                     </tbody>
                                 </table>
