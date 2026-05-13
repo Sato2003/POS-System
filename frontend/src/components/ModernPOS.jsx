@@ -4,10 +4,8 @@ import { printReceipt } from './ReceiptPrinter';
 import ImageUpload from './ImageUpload';
 import API_URL from '../config';
 
-
 const Modal = ({ show, onClose, title, children, width = '500px' }) => {
     if (!show) return null;
-    
     return (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
             <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '10px', maxWidth: width, width: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -20,7 +18,6 @@ const Modal = ({ show, onClose, title, children, width = '500px' }) => {
         </div>
     );
 };
-
 // ==================== CUSTOM HOOKS ====================
 
 const useProducts = () => {
@@ -714,8 +711,7 @@ const categories = Object.keys(groupedProducts).sort();
         </div>
     );
 
-    const renderInventoryTab = () => {
-    // Group products by category for inventory
+const renderInventoryTab = () => {
     const groupedInventory = groupProductsByCategory(filteredProducts);
     const inventoryCategories = Object.keys(groupedInventory).sort();
 
@@ -726,31 +722,14 @@ const categories = Object.keys(groupedProducts).sort();
                 <button onClick={() => setShowAddModal(true)} style={{ padding: '10px 20px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>+ Add Product</button>
             </div>
             
-            <input 
-                type="text" 
-                placeholder="Search by name, barcode, or category..." 
-                value={search} 
-                onChange={(e) => setSearch(e.target.value)} 
-                style={{ width: '100%', padding: '12px', marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px' }} 
-            />
+            <input type="text" placeholder="Search by name, barcode, or category..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px' }} />
             
             {inventoryCategories.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No products found</div>
             ) : (
                 inventoryCategories.map(category => (
                     <div key={category} style={{ marginBottom: '30px' }}>
-                        <div style={{ 
-                            backgroundColor: '#27ae60', 
-                            color: 'white', 
-                            padding: '10px 15px', 
-                            borderRadius: '8px',
-                            marginBottom: '15px',
-                            fontSize: '18px',
-                            fontWeight: 'bold',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px'
-                        }}>
+                        <div style={{ backgroundColor: '#27ae60', color: 'white', padding: '10px 15px', borderRadius: '8px', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <span>📦</span> {category}
                             <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>
                                 {groupedInventory[category].length} items
@@ -773,14 +752,7 @@ const categories = Object.keys(groupedProducts).sort();
                                         <tr key={product._id} style={{ borderBottom: '1px solid #eee' }}>
                                             <td style={{ padding: '12px' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    {product.imageUrl && (
-                                                        <img 
-                                                            src={product.imageUrl} 
-                                                            alt={product.name} 
-                                                            style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }}
-                                                            onError={(e) => { e.target.style.display = 'none'; }}
-                                                        />
-                                                    )}
+                                                    {product.imageUrl && <img src={product.imageUrl} alt={product.name} style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} onError={(e) => { e.target.style.display = 'none'; }} />}
                                                     <span>{product.name}</span>
                                                 </div>
                                             </td>
@@ -788,31 +760,13 @@ const categories = Object.keys(groupedProducts).sort();
                                             <td style={{ padding: '12px' }}>{formatCurrency(product.sellingPrice)}</td>
                                             <td style={{ padding: '12px' }}>{formatNumber(product.quantity)}</td>
                                             <td style={{ padding: '12px' }}>
-                                                <span style={{ 
-                                                    padding: '4px 8px', 
-                                                    borderRadius: '12px', 
-                                                    fontSize: '12px', 
-                                                    backgroundColor: product.quantity <= (product.reorderLevel || 10) ? '#ff9800' : '#27ae60', 
-                                                    color: 'white' 
-                                                }}>
+                                                <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '12px', backgroundColor: product.quantity <= (product.reorderLevel || 10) ? '#ff9800' : '#27ae60', color: 'white' }}>
                                                     {product.quantity <= (product.reorderLevel || 10) ? 'Low Stock' : 'In Stock'}
                                                 </span>
                                             </td>
                                             <td style={{ padding: '12px' }}>
-                                                <button 
-                                                    onClick={() => handleEditClick(product)} 
-                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', marginRight: '10px' }}
-                                                    title="Edit"
-                                                >
-                                                    EDIT
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleDeleteProduct(product._id, product.name)} 
-                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#e74c3c' }}
-                                                    title="Delete"
-                                                >
-                                                    DELETE
-                                                </button>
+                                                <button onClick={() => handleEditClick(product)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', marginRight: '10px' }} title="Edit">✏️</button>
+                                                <button onClick={() => handleDeleteProduct(product._id, product.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#e74c3c' }} title="Delete">🗑️</button>
                                             </td>
                                         </tr>
                                     ))}
