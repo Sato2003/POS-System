@@ -457,7 +457,7 @@ const ModernPOS = () => {
 
     // RENDER FUNCTIONS
     const renderPOSTab = () => (
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'stretch }}>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'stretch' }}>
             <div style={{ flex: 2, backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
                 <h2>Products</h2>
                 <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
