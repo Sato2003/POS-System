@@ -377,25 +377,48 @@ const ModernPOS = () => {
     };
 
     const handleCheckout = async () => {
-        if (cart.length === 0) { alert('Cart is empty'); return; }
-        try {
-            const response = await axios.post(`${API_URL}/pos/checkout`, {
-                items: cart.map(item => ({ productId: item._id, quantity: item.quantity })),
-                paymentMethod: 'cash', customerName: 'Walk-in Customer', cashierName: currentUser?.name || 'Cashier'
+    if (cart.length === 0) { alert('Cart is empty'); return; }
+    
+    const cashAmount = parseFloat(prompt("Enter cash amount:", total.toFixed(2)));
+    if (isNaN(cashAmount) || cashAmount < total) {
+        alert('Insufficient cash amount!');
+        return;
+    }
+    
+    const changeAmount = cashAmount - total;
+    
+    try {
+        const response = await axios.post(`${API_URL}/pos/checkout`, {
+            items: cart.map(item => ({ productId: item._id, quantity: item.quantity })),
+            paymentMethod: 'cash',
+            customerName: 'Walk-in Customer',
+            cashierName: currentUser?.name || 'Cashier'
+        });
+        
+        if (response.data.success) {
+            printReceipt({
+                invoiceNumber: response.data.invoiceNumber,
+                items: cart.map(item => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    unitPrice: item.sellingPrice
+                })),
+                subtotal: subtotal,
+                tax: tax,
+                total: total,
+                customerName: 'Walk-in Customer',
+                cashierName: currentUser?.name || 'Cashier',
+                paymentMethod: 'Cash',
+                cashAmount: cashAmount,
+                change: changeAmount
             });
-            if (response.data.success) {
-                printReceipt({
-                    invoiceNumber: response.data.invoiceNumber,
-                    items: cart.map(item => ({ name: item.name, quantity: item.quantity, unitPrice: item.sellingPrice })),
-                    subtotal, tax, total,
-                    customerName: 'Walk-in Customer', cashierName: currentUser?.name || 'Cashier', paymentMethod: 'Cash'
-                });
-                alert(`Sale Complete! Total: ${formatCurrency(total)}`);
-                clearCart();
-                loadProducts();
-            }
-        } catch (error) { alert('Checkout failed'); }
-    };
+            
+            alert(`Sale Complete!\nInvoice: ${response.data.invoiceNumber}\nTotal: ${formatCurrency(total)}\nCash: ${formatCurrency(cashAmount)}\nChange: ${formatCurrency(changeAmount)}`);
+            clearCart();
+            loadProducts();
+        }
+    } catch (error) { alert('Checkout failed'); }
+};
 
     const handleEditClick = (product) => {
         setSelectedProduct(product);
