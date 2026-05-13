@@ -28,19 +28,6 @@ export const printReceipt = (saleData) => {
         return Number(num || 0).toLocaleString('en-PH');
     };
 
-    const formatDate = () => {
-        const now = new Date();
-        return now.toLocaleString('en-PH', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        });
-    };
-
     const center = (text, width = 48) => {
         const padding = Math.max(0, (width - text.length) / 2);
         return ' '.repeat(Math.floor(padding)) + text;
@@ -54,9 +41,15 @@ export const printReceipt = (saleData) => {
         return '-'.repeat(width);
     };
 
+    function padText(text, width) {
+        const str = String(text);
+        if (str.length >= width) return str.substring(0, width);
+        return str + ' '.repeat(width - str.length);
+    }
+
     // Business Information
-    const businessName = "POS SYSTEM";
-    const address = "Cebu City";
+    const businessName = "FRINCE WAREHOUSE CLUB MANDAUE INC";
+    const address = "Hi-way, Bulacao, Cebu City";
     const vatTin = "VAT REG TIN: 001-588-219-003";
     const serialNo = "SN: Z2APETRG MIN: 120277459";
 
@@ -140,7 +133,7 @@ export const printReceipt = (saleData) => {
     receipt += center('Accred No.: 43A009386212015030265') + '\n';
     receipt += center('Valid Until: 07/31/2025') + '\n';
     receipt += center('PTU: 0512-082-125811-003') + '\n';
-    receipt += center('Date Issued: 05/15/2026') + '\n';
+    receipt += center('Date Issued: 08/01/2020') + '\n';
     receipt += line() + '\n';
 
     // Footer
@@ -149,66 +142,48 @@ export const printReceipt = (saleData) => {
     receipt += center('*** END OF RECEIPT ***') + '\n';
     receipt += '\n\n';
 
-    // Helper function for text padding
-    function padText(text, width) {
-        const str = String(text);
-        if (str.length >= width) return str.substring(0, width);
-        return str + ' '.repeat(width - str.length);
-    }
-
-    // Print window
-    const printWindow = window.open('', '_blank', 'width=450,height=700');
-
-    if (!printWindow) {
-        alert('Please allow pop-ups for this site');
-        return;
-    }
-
-    printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Sales Invoice - ${invoiceNumber}</title>
-            <style>
-                body {
-                    font-family: 'Courier New', monospace;
-                    font-size: 11px;
-                    margin: 0;
-                    padding: 5mm;
-                    width: 80mm;
-                }
-                @media print {
-                    @page {
-                        size: 80mm auto;
-                        margin: 0mm;
-                    }
-                    body {
-                        margin: 0;
-                        padding: 2mm;
-                    }
-                }
-                pre {
-                    margin: 0;
-                    padding: 0;
-                    white-space: pre-wrap;
-                    font-family: 'Courier New', monospace;
-                    font-size: 11px;
-                }
-            </style>
-        </head>
-        <body>
-            <pre>${receipt}</pre>
-            <script>
-                setTimeout(function() {
-                    window.print();
-                    setTimeout(function() {
-                        window.close();
-                    }, 1000);
-                }, 500);
-            <\/script>
-        </body>
-        </html>
-    `);
-
-    printWindow.document.close();
+    // Print without pop-up blocker issues
+    const printDiv = document.createElement('div');
+    printDiv.style.position = 'absolute';
+    printDiv.style.left = '-9999px';
+    printDiv.style.top = '-9999px';
+    printDiv.innerHTML = `
+        <style>
+            body { 
+                font-family: 'Courier New', monospace; 
+                font-size: 11px; 
+                margin: 0; 
+                padding: 5mm; 
+                width: 80mm; 
+            }
+            @media print { 
+                @page { 
+                    size: 80mm auto; 
+                    margin: 0mm; 
+                } 
+                body { 
+                    margin: 0; 
+                    padding: 2mm; 
+                } 
+            }
+            pre { 
+                margin: 0; 
+                padding: 0; 
+                white-space: pre-wrap; 
+                font-family: 'Courier New', monospace; 
+                font-size: 11px; 
+            }
+        </style>
+        <pre>${receipt}</pre>
+    `;
+    
+    document.body.appendChild(printDiv);
+    
+    // Trigger print
+    window.print();
+    
+    // Remove the hidden div after printing
+    setTimeout(() => {
+        document.body.removeChild(printDiv);
+    }, 1000);
 };
