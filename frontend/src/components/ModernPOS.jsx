@@ -804,14 +804,14 @@ const categories = Object.keys(groupedProducts).sort();
                                                     style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', marginRight: '10px' }}
                                                     title="Edit"
                                                 >
-                                                    ✏️
+                                                    EDIT
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDeleteProduct(product._id, product.name)} 
                                                     style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#e74c3c' }}
                                                     title="Delete"
                                                 >
-                                                    🗑️
+                                                    DELETE
                                                 </button>
                                             </td>
                                         </tr>
@@ -825,6 +825,48 @@ const categories = Object.keys(groupedProducts).sort();
         </div>
     );
 };
+
+            const renderDashboardTab = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+            <StatCard title="Total Revenue" value={formatCurrency(0)} color="#2ecc71" />
+            <StatCard title="Total Sales" value={0} />
+            <StatCard title="Products in Stock" value={products.length} />
+            <StatCard title="Inventory Value" value={formatCurrency(inventoryValue)} color="#3498db" />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '10px' }}>
+                <h3>Sales Trend (Last 7 Days)</h3>
+                <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
+                    {salesData.map((value, i) => (
+                        <div key={i} style={{ textAlign: 'center', width: '50px' }}>
+                            <div style={{ height: `${Math.max(5, value)}px`, backgroundColor: '#3498db', borderRadius: '4px', marginBottom: '5px' }}></div>
+                            <div style={{ fontSize: '11px' }}>{last7Days[i]}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '10px' }}>
+                <h3>Products by Category</h3>
+                {Object.entries(categorySummary).sort((a, b) => a[0].localeCompare(b[0])).map(([cat, val]) => (
+                    <div key={cat} style={{ marginBottom: '10px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span>{cat}</span>
+                            <span style={{ fontWeight: 'bold' }}>{formatCurrency(val)}</span>
+                        </div>
+                        <div style={{ width: '100%', backgroundColor: '#ecf0f1', borderRadius: '4px', height: '8px', marginTop: '4px' }}>
+                            <div style={{ width: `${Math.min(100, (val / inventoryValue) * 100)}%`, height: '8px', backgroundColor: '#3498db', borderRadius: '4px' }}></div>
+                        </div>
+                    </div>
+                ))}
+                <div style={{ marginTop: '15px', paddingTop: '10px', borderTop: '1px solid #eee' }}>
+                    <span>Total Inventory Value: </span>
+                    <span style={{ fontWeight: 'bold', color: '#2ecc71' }}>{formatCurrency(inventoryValue)}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+);
 
     const renderLowStockModal = () => (
         <Modal show={showLowStockModal} onClose={() => setShowLowStockModal(false)} title="Low Stock Alert" width="500px">
