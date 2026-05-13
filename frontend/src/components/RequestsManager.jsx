@@ -193,7 +193,7 @@ const RequestsManager = () => {
                                                 color: 'white',
                                                 border: 'none',
                                                 borderRadius: '5px',
-                                            cursor: 'pointer'
+                                                cursor: 'pointer'
                                             }}
                                         >
                                             Reject
@@ -285,7 +285,7 @@ const RequestsManager = () => {
                                         <tr style={{ borderBottom: '1px solid #eee' }}>
                                             <td style={{ padding: '10px', fontWeight: 'bold', width: '40%' }}>Product Name:</td>
                                             <td style={{ padding: '10px' }}>{selectedRequest.name}</td>
-                                        </tr>
+                                        </td>
                                         <tr style={{ borderBottom: '1px solid #eee' }}>
                                             <td style={{ padding: '10px', fontWeight: 'bold' }}>Barcode:</td>
                                             <td style={{ padding: '10px' }}>{selectedRequest.barcode}</td>
