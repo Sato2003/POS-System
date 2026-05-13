@@ -3,6 +3,7 @@ import axios from 'axios';
 import { printReceipt } from './ReceiptPrinter';
 import ImageUpload from './ImageUpload';
 import API_URL from '../config';
+const [cashInput, setCashInput] = useState('');
 
 const Modal = ({ show, onClose, title, children, width = '500px' }) => {
     if (!show) return null;
@@ -386,9 +387,9 @@ const ModernPOS = () => {
     const handleCheckout = async () => {
     if (cart.length === 0) { alert('Cart is empty'); return; }
     
-    const cashAmount = parseFloat(prompt("Enter cash amount:", total.toFixed(2)));
+    const cashAmount = parseFloat(cashInput);
     if (isNaN(cashAmount) || cashAmount < total) {
-        alert('Insufficient cash amount!');
+        alert('Please enter a valid cash amount sufficient to cover the total');
         return;
     }
     
@@ -422,6 +423,7 @@ const ModernPOS = () => {
             
             alert(`Sale Complete!\nInvoice: ${response.data.invoiceNumber}\nTotal: ${formatCurrency(total)}\nCash: ${formatCurrency(cashAmount)}\nChange: ${formatCurrency(changeAmount)}`);
             clearCart();
+            setCashInput('');
             loadProducts();
         }
     } catch (error) { alert('Checkout failed: ' + error.message); }
@@ -517,6 +519,40 @@ const ModernPOS = () => {
                 <input type="text" placeholder="Scan or enter barcode..." value={barcode} onChange={(e) => setBarcode(e.target.value)} onKeyPress={handleScan} style={{ width: '100%', padding: '12px', border: '2px solid #007bff', borderRadius: '5px', fontSize: '14px' }} autoFocus />
                 <div style={{ fontSize: '11px', color: '#666', marginTop: '5px' }}>Scan barcode and press Enter to add to cart</div>
             </div>
+
+            {/* Cash Amount Input - No pop-up needed */}
+<div style={{ marginBottom: '15px' }}>
+    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '13px' }}>💵 Cash Amount</label>
+    <input
+        type="number"
+        placeholder="Enter cash amount..."
+        value={cashInput}
+        onChange={(e) => setCashInput(e.target.value)}
+        style={{
+            width: '100%',
+            padding: '10px',
+            border: '2px solid #28a745',
+            borderRadius: '5px',
+            fontSize: '14px',
+            fontWeight: 'bold'
+        }}
+        onKeyPress={(e) => {
+            if (e.key === 'Enter' && cashInput >= total) {
+                handleCheckout();
+            }
+        }}
+    />
+    {cashInput && cashInput < total && (
+        <div style={{ fontSize: '11px', color: '#e74c3c', marginTop: '5px' }}>
+            Insufficient amount! Need {formatCurrency(total - cashInput)} more
+        </div>
+    )}
+    {cashInput && cashInput >= total && (
+        <div style={{ fontSize: '11px', color: '#27ae60', marginTop: '5px' }}>
+            Change: {formatCurrency(cashInput - total)}
+        </div>
+    )}
+</div>
             
             {/* Summary Section - RIGHT UNDER BARCODE */}
             {cart.length > 0 && (
