@@ -304,11 +304,11 @@ const RequestsManager = () => {
                                             <tr style={{ borderBottom: '1px solid #eee' }}>
                                                 <td style={{ padding: '10px', fontWeight: 'bold' }}>Cost Price:</td>
                                                 <td style={{ padding: '10px' }}>₱{selectedRequest.costPrice}</td>
-                                            </tr>
+                                            <tr>
                                         )}
                                         <tr style={{ borderBottom: '1px solid #eee' }}>
                                             <td style={{ padding: '10px', fontWeight: 'bold' }}>Quantity:</td>
-                                            <td style={{ padding: '10px' }}>{selectedRequest.quantity} units\n</td>
+                                            <td style={{ padding: '10px' }}>{selectedRequest.quantity} units</td>
                                         </tr>
                                     </tbody>
                                 </table>
