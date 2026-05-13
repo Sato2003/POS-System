@@ -446,7 +446,7 @@ const ModernPOS = () => {
                 </div>
                 <div style={{ flex: 1, backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
                     <h2>Current Sale</h2>
-                    <input type="text" placeholder="Scan or enter barcode..." value={barcode} onChange={(e) => setBarcode(e.target.value)} onKeyPress={handleScan} style={{ width: '100%', padding: '12px', border: '2px solid #007bff', borderRadius: '5px', marginBottom: '20px' }} autoFocus />
+                    <input type="text" placeholder="Scan or enter barcode..." value={barcode} onChange={(e) => setBarcode(e.target.value)} onClick={handleCheckout} style={{ width: '100%', padding: '12px', border: '2px solid #007bff', borderRadius: '5px', marginBottom: '20px' }} autoFocus />
                     {cart.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>Cart is empty</div>
                     ) : (
