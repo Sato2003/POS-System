@@ -76,7 +76,7 @@ const RequestsManager = () => {
     return (
         <div style={{ padding: '20px', backgroundColor: '#f5f7fa', minHeight: '100vh' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                <h1 style={{ marginBottom: '20px', color: '#2c3e50' }}>📋 Product Requests</h1>
+                <h1 style={{ marginBottom: '20px', color: '#2c3e50' }}>Product Requests</h1>
                 
                 {message && (
                     <div style={{
