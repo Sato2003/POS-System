@@ -3,7 +3,6 @@ import axios from 'axios';
 import { printReceipt } from './ReceiptPrinter';
 import ImageUpload from './ImageUpload';
 import API_URL from '../config';
-const [cashInput, setCashInput] = useState('');
 
 const Modal = ({ show, onClose, title, children, width = '500px' }) => {
     if (!show) return null;
@@ -335,6 +334,7 @@ const ModernPOS = () => {
     const [isRestockMode, setIsRestockMode] = useState(false);
     const [barcode, setBarcode] = useState('');
     const [notFoundBarcode, setNotFoundBarcode] = useState('');
+    const [cashInput, setCashInput] = useState('');
 
     const { products, loadProducts, addProduct, updateProduct, deleteProduct, restockProduct } = useProducts();
     const { cart, addToCart, updateQuantity, removeFromCart, clearCart, subtotal, tax, total, totalItems } = useCart();
