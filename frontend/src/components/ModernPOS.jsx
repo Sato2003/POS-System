@@ -410,7 +410,124 @@ const ModernPOS = () => {
     const categories = Object.keys(groupedProducts).sort();
 
     // Handlers (keep all your existing handlers here - handleScan, handleQuickAddProduct, etc.)
+        // ========== HANDLERS ==========
     
+    const handleScan = async (e) => {
+        if (e.key === 'Enter' && barcode) {
+            const product = products.find(p => p.barcode === barcode);
+            if (product) {
+                if (isRestockMode && isAdmin) {
+                    const newQuantity = prompt(`Current stock: ${product.quantity}\nEnter quantity to ADD:`, "10");
+                    if (newQuantity && !isNaN(newQuantity) && parseInt(newQuantity) > 0) {
+                        try {
+                            await restockProduct(product._id, product.quantity + parseInt(newQuantity));
+                            alert(`Restocked ${newQuantity} units!`);
+                            setBarcode('');
+                        } catch (error) { alert('Restock failed'); }
+                    } else { setBarcode(''); }
+                } else {
+                    addToCart(product, product.quantity);
+                    setBarcode('');
+                }
+            } else {
+                setNotFoundBarcode(barcode);
+                quickProductForm.setForm({
+                    name: '', barcode: barcode, category: '', sellingPrice: '', costPrice: '',
+                    quantity: '1', reorderLevel: 10, imageUrl: ''
+                });
+                setShowNotFoundModal(true);
+                setBarcode('');
+            }
+        }
+    };
+
+    const handleQuickAddProduct = async () => {
+        if (!quickProductForm.validate()) return;
+        try {
+            const token = localStorage.getItem('token');
+            const productData = quickProductForm.toApiFormat();
+            if (!isAdmin) {
+                await axios.post(`${API_URL}/requests/create`, productData, { headers: { 'x-auth-token': token } });
+                alert('Request sent to Admin!');
+            } else {
+                await addProduct(productData);
+                alert('Product added successfully!');
+            }
+            setShowNotFoundModal(false);
+            quickProductForm.resetForm();
+            loadProducts();
+        } catch (error) { alert('Error: ' + (error.response?.data?.error || error.message)); }
+    };
+
+    const handleAddProduct = async () => {
+        if (!newProductForm.validate()) return;
+        try {
+            await addProduct(newProductForm.toApiFormat());
+            alert('Product added successfully!');
+            setShowAddModal(false);
+            newProductForm.resetForm();
+        } catch (error) { alert('Error: ' + (error.response?.data?.error || 'Duplicate barcode?')); }
+    };
+
+    const handleUpdateProduct = async () => {
+        if (!selectedProduct) return;
+        try {
+            await updateProduct(selectedProduct._id, editProductForm.toApiFormat());
+            alert('Product updated successfully!');
+            setShowEditModal(false);
+            setSelectedProduct(null);
+            editProductForm.resetForm();
+        } catch (error) { alert('Error updating product'); }
+    };
+
+    const handleDeleteProduct = async (id, name) => {
+        if (window.confirm(`Delete "${name}"?`)) {
+            try {
+                await deleteProduct(id);
+                alert('Product deleted');
+            } catch (error) { alert('Error deleting product'); }
+        }
+    };
+
+    const handleCheckout = async () => {
+        if (cart.length === 0) { alert('Cart is empty'); return; }
+        try {
+            const response = await axios.post(`${API_URL}/pos/checkout`, {
+                items: cart.map(item => ({ productId: item._id, quantity: item.quantity })),
+                paymentMethod: 'cash',
+                customerName: 'Walk-in Customer',
+                cashierName: currentUser?.name || 'Cashier'
+            });
+            if (response.data.success) {
+                printReceipt({
+                    invoiceNumber: response.data.invoiceNumber,
+                    items: cart.map(item => ({ name: item.name, quantity: item.quantity, unitPrice: item.sellingPrice })),
+                    subtotal, tax, total,
+                    customerName: 'Walk-in Customer',
+                    cashierName: currentUser?.name || 'Cashier',
+                    paymentMethod: 'Cash'
+                });
+                alert(`Sale Complete!\nInvoice: ${response.data.invoiceNumber}\nTotal: ${formatCurrency(total)}`);
+                clearCart();
+                loadProducts();
+            }
+        } catch (error) { alert('Checkout failed'); }
+    };
+
+    const handleEditClick = (product) => {
+        setSelectedProduct(product);
+        editProductForm.setForm({
+            name: product.name,
+            barcode: product.barcode,
+            category: product.category || '',
+            sellingPrice: product.sellingPrice,
+            costPrice: product.costPrice || '',
+            quantity: product.quantity,
+            reorderLevel: product.reorderLevel || 10,
+            imageUrl: product.imageUrl || ''
+        });
+        setShowEditModal(true);
+    };
     // Chart Data
     const last7Days = ['Apr 29', 'May 1', 'May 2', 'May 3', 'May 4', 'May 5'];
     const salesData = [0, 0, 0, 0, 0, 0];
