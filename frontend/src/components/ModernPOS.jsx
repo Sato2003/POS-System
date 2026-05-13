@@ -153,13 +153,15 @@ const ProductCard = ({ product, onAddToCart }) => (
     <div style={{
         border: '1px solid #e0e0e0',
         borderRadius: '12px',
-        padding: '15px',
+        padding: '12px',
         cursor: 'pointer',
         backgroundColor: 'white',
         transition: 'transform 0.2s, box-shadow 0.2s',
         display: 'flex',
         flexDirection: 'column',
-        height: '280px', // Fixed height for all cards
+        height: '100%',
+        minHeight: '280px',
+        maxHeight: '320px',
         width: '100%',
         boxSizing: 'border-box'
     }}
@@ -171,14 +173,16 @@ const ProductCard = ({ product, onAddToCart }) => (
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.boxShadow = 'none';
     }}>
-        {/* Image Section - Fixed height */}
+        
+        {/* Image Section */}
         <div style={{
-            height: '120px',
+            height: '100px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: '10px',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            flexShrink: 0
         }}>
             {product.imageUrl ? (
                 <img
@@ -194,39 +198,41 @@ const ProductCard = ({ product, onAddToCart }) => (
                 />
             ) : (
                 <div style={{
-                    width: '80px',
-                    height: '80px',
+                    width: '70px',
+                    height: '70px',
                     backgroundColor: '#f0f0f0',
                     borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '40px'
+                    fontSize: '35px'
                 }}>
                     🛒
                 </div>
             )}
         </div>
 
-        {/* Product Name - Fixed height with ellipsis */}
+        {/* Product Name - Auto adjusts height based on content */}
         <div style={{
             fontWeight: 'bold',
-            fontSize: '14px',
+            fontSize: '13px',
             marginBottom: '5px',
-            height: '40px',
+            minHeight: '32px',
+            maxHeight: '48px',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
-            lineHeight: '1.3'
+            lineHeight: '1.3',
+            wordBreak: 'break-word'
         }}>
             {product.name}
         </div>
 
         {/* Barcode */}
         <div style={{
-            fontSize: '11px',
+            fontSize: '10px',
             color: '#666',
             marginBottom: '5px',
             overflow: 'hidden',
@@ -238,36 +244,37 @@ const ProductCard = ({ product, onAddToCart }) => (
 
         {/* Stock Status */}
         <div style={{
-            fontSize: '12px',
+            fontSize: '11px',
             marginBottom: '8px',
             color: product.quantity <= (product.reorderLevel || 10) ? '#e74c3c' : '#27ae60'
         }}>
-            Stock: {formatNumber(product.quantity)} {product.quantity <= (product.reorderLevel || 10) && '⚠️ Low Stock'}
+            Stock: {formatNumber(product.quantity)} {product.quantity <= (product.reorderLevel || 10) && '⚠️'}
         </div>
 
         {/* Price */}
         <div style={{
-            fontSize: '20px',
+            fontSize: '18px',
             fontWeight: 'bold',
             color: '#2ecc71',
-            marginBottom: '12px'
+            marginBottom: '10px'
         }}>
             {formatCurrency(product.sellingPrice)}
         </div>
 
-        {/* Button - Fixed at bottom */}
+        {/* Button - Always at bottom */}
         <button
             onClick={() => onAddToCart(product)}
             style={{
                 marginTop: 'auto',
                 width: '100%',
-                padding: '10px',
+                padding: '8px',
                 backgroundColor: '#3498db',
                 color: 'white',
                 border: 'none',
-                borderRadius: '8px',
+                borderRadius: '6px',
                 cursor: 'pointer',
                 fontWeight: 'bold',
+                fontSize: '12px',
                 transition: 'background-color 0.2s'
             }}
             onMouseEnter={(e) => e.target.style.backgroundColor = '#2980b9'}
@@ -479,47 +486,77 @@ const ModernPOS = () => {
     const salesData = [0, 0, 0, 0, 0, 0];
 
     // RENDER FUNCTIONS
-    const renderPOSTab = () => (
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'stretch' }}>
-            <div style={{ flex: 2, backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
-                <h2>Products</h2>
-                <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    <button onClick={() => setSearch('')} style={{ padding: '8px 16px', backgroundColor: search === '' ? '#3498db' : '#ecf0f1', color: search === '' ? 'white' : '#2c3e50', border: 'none', borderRadius: '20px', cursor: 'pointer' }}>All</button>
-                    {CATEGORIES.map(cat => <button key={cat} onClick={() => setSearch(cat)} style={{ padding: '8px 16px', backgroundColor: search === cat ? '#3498db' : '#ecf0f1', color: search === cat ? 'white' : '#2c3e50', border: 'none', borderRadius: '20px', cursor: 'pointer' }}>{cat}</button>)}
-                </div>
-                <input type="text" placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', marginBottom: '20px' }} />
-                {categories.length === 0 ? <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No products found</div> : categories.map(category => (
-                    <div key={category} style={{ marginBottom: '30px' }}>
-                        <div style={{ backgroundColor: '#3498db', color: 'white', padding: '10px 15px', borderRadius: '8px', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span></span> {category} <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>{groupedProducts[category].length} items</span>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '15px' }}>
-                            {groupedProducts[category].map(product => <ProductCard key={product._id} product={product} onAddToCart={(p) => addToCart(p, p.quantity)} />)}
-                        </div>
-                    </div>
-                ))}
+   const renderPOSTab = () => (
+    <div style={{ display: 'flex', gap: '20px', alignItems: 'stretch' }}>
+        {/* LEFT PANEL - Products */}
+        <div style={{ flex: 2, backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
+            <h2>Products</h2>
+            <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button onClick={() => setSearch('')} style={{ padding: '8px 16px', backgroundColor: search === '' ? '#3498db' : '#ecf0f1', color: search === '' ? 'white' : '#2c3e50', border: 'none', borderRadius: '20px', cursor: 'pointer' }}>All</button>
+                {CATEGORIES.map(cat => <button key={cat} onClick={() => setSearch(cat)} style={{ padding: '8px 16px', backgroundColor: search === cat ? '#3498db' : '#ecf0f1', color: search === cat ? 'white' : '#2c3e50', border: 'none', borderRadius: '20px', cursor: 'pointer' }}>{cat}</button>)}
             </div>
-            <div style={{ flex: 1, backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
-                <h2>Current Sale</h2>
-                <input type="text" placeholder="Scan or enter barcode..." value={barcode} onChange={(e) => setBarcode(e.target.value)} onKeyPress={handleScan} style={{ width: '100%', padding: '12px', border: '2px solid #007bff', borderRadius: '5px', marginBottom: '20px' }} autoFocus />
-                {cart.length === 0 ? <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>Cart is empty</div> : (
-                    <>
-                        {cart.map(item => <CartItem key={item._id} item={item} onUpdateQuantity={updateQuantity} onRemove={removeFromCart} />)}
-                        <div style={{ borderTop: '2px solid #ddd', paddingTop: '15px' }}>
-                            <div>Total Items: {totalItems}</div>
-                            <div>Subtotal: {formatCurrency(subtotal)}</div>
-                            <div>VAT (12%): {formatCurrency(tax)}</div>
-                            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2ecc71' }}>Total: {formatCurrency(total)}</div>
+            <input type="text" placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', marginBottom: '20px' }} />
+            {categories.length === 0 ? <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No products found</div> : categories.map(category => (
+                <div key={category} style={{ marginBottom: '30px' }}>
+                    <div style={{ backgroundColor: '#3498db', color: 'white', padding: '10px 15px', borderRadius: '8px', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span></span> {category} <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>{groupedProducts[category].length} items</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '15px' }}>
+                        {groupedProducts[category].map(product => <ProductCard key={product._id} product={product} onAddToCart={(p) => addToCart(p, p.quantity)} />)}
+                    </div>
+                </div>
+            ))}
+        </div>
+
+        {/* RIGHT PANEL - Cart Section */}
+        <div style={{ flex: 1, backgroundColor: 'white', borderRadius: '10px', padding: '20px', display: 'flex', flexDirection: 'column' }}>
+            <h2 style={{ marginBottom: '15px', marginTop: 0 }}>Current Sale</h2>
+            
+            {/* Barcode Input */}
+            <div style={{ marginBottom: '15px' }}>
+                <input type="text" placeholder="Scan or enter barcode..." value={barcode} onChange={(e) => setBarcode(e.target.value)} onKeyPress={handleScan} style={{ width: '100%', padding: '12px', border: '2px solid #007bff', borderRadius: '5px', fontSize: '14px' }} autoFocus />
+                <div style={{ fontSize: '11px', color: '#666', marginTop: '5px' }}>Scan barcode and press Enter to add to cart</div>
+            </div>
+            
+            {/* Summary Section - RIGHT UNDER BARCODE */}
+            {cart.length > 0 && (
+                <div style={{ backgroundColor: '#f8f9fa', padding: '12px', borderRadius: '8px', marginBottom: '15px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}><span>Total Items:</span><strong>{totalItems}</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}><span>Subtotal:</span><strong>{formatCurrency(subtotal)}</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}><span>VAT (12%):</span><strong>{formatCurrency(tax)}</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '18px', fontWeight: 'bold', color: '#2ecc71' }}><span>Total:</span><strong>{formatCurrency(total)}</strong></div>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={clearCart} style={{ flex: 1, padding: '10px', backgroundColor: '#95a5a6', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>Clear Cart</button>
+                        <button onClick={handleCheckout} style={{ flex: 1, padding: '10px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>Complete Sale</button>
+                    </div>
+                </div>
+            )}
+            
+            {/* Cart Items - Scrollable Area */}
+            <div style={{ flex: 1, overflowY: 'auto', maxHeight: '400px', borderTop: cart.length > 0 ? '1px solid #eee' : 'none', paddingTop: '10px' }}>
+                {cart.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>Cart is empty</div>
+                ) : (
+                    cart.map(item => (
+                        <div key={item._id} style={{ borderBottom: '1px solid #eee', padding: '12px 0', marginBottom: '8px' }}>
+                            <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>{item.name}</div>
+                            <div style={{ fontSize: '12px', color: '#666', marginBottom: '8px' }}>{formatCurrency(item.sellingPrice)} each</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <button onClick={() => updateQuantity(item._id, -1)} style={{ width: '28px', height: '28px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>-</button>
+                                    <span style={{ minWidth: '30px', textAlign: 'center', fontWeight: 'bold' }}>{item.quantity}</span>
+                                    <button onClick={() => updateQuantity(item._id, 1)} style={{ width: '28px', height: '28px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>+</button>
+                                    <button onClick={() => removeFromCart(item._id)} style={{ marginLeft: '5px', padding: '4px 8px', backgroundColor: '#95a5a6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                                </div>
+                                <div style={{ fontWeight: 'bold', color: '#2ecc71' }}>{formatCurrency(item.sellingPrice * item.quantity)}</div>
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                            <button onClick={clearCart} style={{ flex: 1, padding: '12px', backgroundColor: '#95a5a6', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Clear Cart</button>
-                            <button onClick={handleCheckout} style={{ flex: 2, padding: '12px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Complete Sale</button>
-                        </div>
-                    </>
+                    ))
                 )}
             </div>
         </div>
-    );
+    </div>
+);
 
     const renderInventoryTab = () => {
         const groupedInventory = groupByCategory(filteredProducts);
