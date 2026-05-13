@@ -374,11 +374,7 @@ const ModernPOS = () => {
 
     // Custom Hooks
     const { products, loadProducts, addProduct, updateProduct, deleteProduct, restockProduct } = useProducts();
-    const { 
-        cart, addToCart, updateQuantity, removeFromCart, clearCart,
-        subtotal, tax, total, totalItems 
-    } = useCart();
-    
+    const { cart, addToCart, updateQuantity, removeFromCart, clearCart, subtotal, tax, total, totalItems } = useCart();
     const newProductForm = useProductForm();
     const editProductForm = useProductForm();
     const quickProductForm = useProductForm();
@@ -386,7 +382,6 @@ const ModernPOS = () => {
     // Derived Data
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
     const isAdmin = currentUser?.role === 'admin';
-    // const API_URL = 'http://localhost:5000/api';
     
     const lowStockProducts = products.filter(p => p.quantity <= (p.reorderLevel || 10));
     const filteredProducts = products.filter(p =>
@@ -394,433 +389,169 @@ const ModernPOS = () => {
         p.barcode?.toLowerCase().includes(search.toLowerCase()) ||
         p.category?.toLowerCase().includes(search.toLowerCase())
     );
-
-    const totalRevenue = 0;
-    const totalSales = 0;
     const inventoryValue = products.reduce((sum, p) => sum + ((p.costPrice || 0) * (p.quantity || 0)), 0);
-    
     const categorySummary = products.reduce((acc, p) => {
         const cat = p.category || 'General';
         acc[cat] = (acc[cat] || 0) + ((p.costPrice || 0) * (p.quantity || 0));
         return acc;
     }, {});
 
-    // Group products by category
-const groupProductsByCategory = (products) => {
-    const grouped = {};
-    products.forEach(product => {
-        const category = product.category || 'General';
-        if (!grouped[category]) {
-            grouped[category] = [];
-        }
-        grouped[category].push(product);
-    });
-    return grouped;
-};
-
-const groupedProducts = groupProductsByCategory(filteredProducts);
-const categories = Object.keys(groupedProducts).sort();
-    
-    // Handlers
-    const handleScan = async (e) => {
-        if (e.key === 'Enter' && barcode) {
-            const product = products.find(p => p.barcode === barcode);
-            
-            if (product) {
-                if (isRestockMode && isAdmin) {
-                    const newQuantity = prompt(`Current stock: ${product.quantity}\nEnter quantity to ADD:`, "10");
-                    if (newQuantity && !isNaN(newQuantity) && parseInt(newQuantity) > 0) {
-                        try {
-                            const newTotal = product.quantity + parseInt(newQuantity);
-                            await restockProduct(product._id, newTotal);
-                            alert(`Restocked ${newQuantity} units!\nNew stock: ${newTotal}`);
-                            setBarcode('');
-                        } catch (error) {
-                            alert('Restock failed');
-                        }
-                    } else {
-                        setBarcode('');
-                    }
-                } else {
-                    addToCart(product, product.quantity);
-                    setBarcode('');
-                }
-            } else {
-                setNotFoundBarcode(barcode);
-                quickProductForm.setForm({
-                    name: '',
-                    barcode: barcode,
-                    category: '',
-                    sellingPrice: '',
-                    costPrice: '',
-                    quantity: '1',
-                    reorderLevel: 10,
-                    imageUrl: ''
-                });
-                setShowNotFoundModal(true);
-                setBarcode('');
-            }
-        }
-    };
-
-    const handleQuickAddProduct = async () => {
-        if (!quickProductForm.validate()) return;
-
-        try {
-            const token = localStorage.getItem('token');
-            const productData = quickProductForm.toApiFormat();
-            
-            if (!isAdmin) {
-                await axios.post(`${API_URL}/requests/create`, productData, {
-                    headers: { 'x-auth-token': token }
-                });
-                alert('Request sent to Admin! They will review and add the product.');
-            } else {
-                await addProduct(productData);
-                alert('Product added successfully!');
-            }
-            
-            setShowNotFoundModal(false);
-            quickProductForm.resetForm();
-            loadProducts();
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error: ' + (error.response?.data?.error || error.message));
-        }
-    };
-
-    const handleAddProduct = async () => {
-        if (!newProductForm.validate()) return;
-        
-        try {
-            await addProduct(newProductForm.toApiFormat());
-            alert('Product added successfully!');
-            setShowAddModal(false);
-            newProductForm.resetForm();
-        } catch (error) {
-            alert('Error: ' + (error.response?.data?.error || 'Duplicate barcode?'));
-        }
-    };
-
-    const handleUpdateProduct = async () => {
-        if (!selectedProduct) return;
-        
-        try {
-            await updateProduct(selectedProduct._id, editProductForm.toApiFormat());
-            alert('Product updated successfully!');
-            setShowEditModal(false);
-            setSelectedProduct(null);
-            editProductForm.resetForm();
-        } catch (error) {
-            alert('Error updating product');
-        }
-    };
-
-    const handleDeleteProduct = async (id, name) => {
-        if (window.confirm(`Delete "${name}"?`)) {
-            try {
-                await deleteProduct(id);
-                alert('Product deleted');
-            } catch (error) {
-                alert('Error deleting product');
-            }
-        }
-    };
-
-    const handleCheckout = async () => {
-        if (cart.length === 0) {
-            alert('Cart is empty');
-            return;
-        }
-
-        try {
-            const response = await axios.post(`${API_URL}/pos/checkout`, {
-                items: cart.map(item => ({ productId: item._id, quantity: item.quantity })),
-                paymentMethod: 'cash',
-                customerName: 'Walk-in Customer',
-                cashierName: currentUser?.name || 'Cashier'
-            });
-
-            if (response.data.success) {
-                printReceipt({
-                    invoiceNumber: response.data.invoiceNumber,
-                    items: cart.map(item => ({
-                        name: item.name,
-                        quantity: item.quantity,
-                        unitPrice: item.sellingPrice
-                    })),
-                    subtotal: subtotal,
-                    tax: tax,
-                    total: total,
-                    customerName: 'Walk-in Customer',
-                    cashierName: currentUser?.name || 'Cashier',
-                    paymentMethod: 'Cash'
-                });
-
-                alert(`Sale Complete!\nInvoice: ${response.data.invoiceNumber}\nTotal: ${formatCurrency(total)}`);
-                clearCart();
-                loadProducts();
-            }
-        } catch (error) {
-            alert('Checkout failed');
-        }
-    };
-
-    const handleEditClick = (product) => {
-        setSelectedProduct(product);
-        editProductForm.setForm({
-            name: product.name,
-            barcode: product.barcode,
-            category: product.category || '',
-            sellingPrice: product.sellingPrice,
-            costPrice: product.costPrice || '',
-            quantity: product.quantity,
-            reorderLevel: product.reorderLevel || 10,
-            imageUrl: product.imageUrl || ''
+    const groupProductsByCategory = (products) => {
+        const grouped = {};
+        products.forEach(product => {
+            const category = product.category || 'General';
+            if (!grouped[category]) grouped[category] = [];
+            grouped[category].push(product);
         });
-        setShowEditModal(true);
+        return grouped;
     };
 
-    // Chart Data (placeholder)
+    const groupedProducts = groupProductsByCategory(filteredProducts);
+    const categories = Object.keys(groupedProducts).sort();
+
+    // Handlers (keep all your existing handlers here - handleScan, handleQuickAddProduct, etc.)
+    
+    // Chart Data
     const last7Days = ['Apr 29', 'May 1', 'May 2', 'May 3', 'May 4', 'May 5'];
     const salesData = [0, 0, 0, 0, 0, 0];
 
-    // Render Components
-    const renderPOSTab = () => (
-        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-
-            <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-    <button 
-        onClick={() => setSearch('')} 
-        style={{
-            padding: '8px 16px',
-            backgroundColor: search === '' ? '#3498db' : '#ecf0f1',
-            color: search === '' ? 'white' : '#2c3e50',
-            border: 'none',
-            borderRadius: '20px',
-            cursor: 'pointer'
-        }}
-    >
-        All
-    </button>
-    {['LOTIONS', 'SOAP', 'SHAMPOO', 'SUNSCREEN', 'DEODORANT', 'CAN FOODS', 'TOOTHPASTE', 'WET WIPES', 'INSECT REPELLENT'].map(cat => (
-        <button 
-            key={cat}
-            onClick={() => setSearch(cat)} 
-            style={{
-                padding: '8px 16px',
-                backgroundColor: search === cat ? '#3498db' : '#ecf0f1',
-                color: search === cat ? 'white' : '#2c3e50',
-                border: 'none',
-                borderRadius: '20px',
-                cursor: 'pointer'
-            }}
-        >
-            {cat}
-        </button>
-    ))}
-</div>
-            
-            {/* Products Grid */}
-            <div style={{ flex: 2, backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
-                <h2>Products</h2>
-                <div style={{ marginBottom: '20px' }}>
-                    <input 
-                        type="text" 
-                        placeholder="Search products..." 
-                        value={search} 
-                        onChange={(e) => setSearch(e.target.value)} 
-                        style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px' }} 
-                    />
-                </div>
-                {categories.length === 0 ? (
-    <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No products found</div>
-) : (
-    categories.map(category => (
-        <div key={category} style={{ marginBottom: '30px' }}>
-            <div style={{ 
-                backgroundColor: '#3498db', 
-                color: 'white', 
-                padding: '10px 15px', 
-                borderRadius: '8px',
-                marginBottom: '15px',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-            }}>
-                <span>📁</span> {category}
-                <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>
-                    {groupedProducts[category].length} items
-                </span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '15px' }}>
-                {groupedProducts[category].map(product => (
-                    <ProductCard key={product._id} product={product} onAddToCart={(p) => addToCart(p, p.quantity)} />
-                ))}
-            </div>
-        </div>
-    ))
-)}
-
-            {/* Cart */}
-            <div style={{ flex: 1, backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
-                <h2>Current Sale</h2>
-                
-                <div style={{ marginBottom: '20px' }}>
-                    <input 
-                        type="text" 
-                        placeholder="Scan or enter barcode..." 
-                        value={barcode} 
-                        onChange={(e) => setBarcode(e.target.value)} 
-                        onKeyPress={handleScan} 
-                        style={{ width: '100%', padding: '12px', border: '2px solid #007bff', borderRadius: '5px' }} 
-                        autoFocus
-                    />
-                    <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-                        Scan barcode and press Enter to add to cart
-                    </div>
-                </div>
-                
-                {cart.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>Cart is empty</div>
-                ) : (
-                    <>
-                        {cart.map(item => (
-                            <CartItem 
-                                key={item._id} 
-                                item={item} 
-                                onUpdateQuantity={updateQuantity} 
-                                onRemove={removeFromCart} 
-                            />
+    // ========== RENDER FUNCTIONS ==========
+    
+    const renderPOSTab = () => {
+        return (
+            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                <div style={{ flex: 2, backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
+                    <h2>Products</h2>
+                    <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        <button onClick={() => setSearch('')} style={{ padding: '8px 16px', backgroundColor: search === '' ? '#3498db' : '#ecf0f1', color: search === '' ? 'white' : '#2c3e50', border: 'none', borderRadius: '20px', cursor: 'pointer' }}>All</button>
+                        {['LOTIONS', 'SOAP', 'SHAMPOO', 'SUNSCREEN', 'DEODORANT', 'CAN FOODS', 'TOOTHPASTE', 'WET WIPES', 'INSECT REPELLENT'].map(cat => (
+                            <button key={cat} onClick={() => setSearch(cat)} style={{ padding: '8px 16px', backgroundColor: search === cat ? '#3498db' : '#ecf0f1', color: search === cat ? 'white' : '#2c3e50', border: 'none', borderRadius: '20px', cursor: 'pointer' }}>{cat}</button>
                         ))}
-                        <div style={{ borderTop: '2px solid #ddd', paddingTop: '15px' }}>
-                            <div>Total Items: {totalItems}</div>
-                            <div>Subtotal: {formatCurrency(subtotal)}</div>
-                            <div>VAT (12%): {formatCurrency(tax)}</div>
-                            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2ecc71' }}>Total: {formatCurrency(total)}</div>
+                    </div>
+                    <input type="text" placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', marginBottom: '20px' }} />
+                    {categories.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No products found</div>
+                    ) : (
+                        categories.map(category => (
+                            <div key={category} style={{ marginBottom: '30px' }}>
+                                <div style={{ backgroundColor: '#3498db', color: 'white', padding: '10px 15px', borderRadius: '8px', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <span>📁</span> {category} <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>{groupedProducts[category].length} items</span>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '15px' }}>
+                                    {groupedProducts[category].map(product => <ProductCard key={product._id} product={product} onAddToCart={(p) => addToCart(p, p.quantity)} />)}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+                <div style={{ flex: 1, backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
+                    <h2>Current Sale</h2>
+                    <input type="text" placeholder="Scan or enter barcode..." value={barcode} onChange={(e) => setBarcode(e.target.value)} onKeyPress={handleScan} style={{ width: '100%', padding: '12px', border: '2px solid #007bff', borderRadius: '5px', marginBottom: '20px' }} autoFocus />
+                    {cart.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>Cart is empty</div>
+                    ) : (
+                        <>
+                            {cart.map(item => <CartItem key={item._id} item={item} onUpdateQuantity={updateQuantity} onRemove={removeFromCart} />)}
+                            <div style={{ borderTop: '2px solid #ddd', paddingTop: '15px' }}>
+                                <div>Total Items: {totalItems}</div>
+                                <div>Subtotal: {formatCurrency(subtotal)}</div>
+                                <div>VAT (12%): {formatCurrency(tax)}</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2ecc71' }}>Total: {formatCurrency(total)}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                                <button onClick={clearCart} style={{ flex: 1, padding: '12px', backgroundColor: '#95a5a6', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Clear Cart</button>
+                                <button onClick={handleCheckout} style={{ flex: 2, padding: '12px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Complete Sale</button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    const renderInventoryTab = () => {
+        const groupedInventory = groupProductsByCategory(filteredProducts);
+        const inventoryCategories = Object.keys(groupedInventory).sort();
+
+        return (
+            <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                    <h2 style={{ margin: 0 }}>Inventory Management</h2>
+                    <button onClick={() => setShowAddModal(true)} style={{ padding: '10px 20px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>+ Add Product</button>
+                </div>
+                <input type="text" placeholder="Search by name, barcode, or category..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px' }} />
+                {inventoryCategories.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No products found</div>
+                ) : (
+                    inventoryCategories.map(category => (
+                        <div key={category} style={{ marginBottom: '30px' }}>
+                            <div style={{ backgroundColor: '#27ae60', color: 'white', padding: '10px 15px', borderRadius: '8px', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <span>📦</span> {category} <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>{groupedInventory[category].length} items</span>
+                            </div>
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #ddd' }}>
+                                            <th style={{ padding: '12px', textAlign: 'left' }}>PRODUCT</th>
+                                            <th style={{ padding: '12px', textAlign: 'left' }}>BARCODE</th>
+                                            <th style={{ padding: '12px', textAlign: 'left' }}>PRICE</th>
+                                            <th style={{ padding: '12px', textAlign: 'left' }}>STOCK</th>
+                                            <th style={{ padding: '12px', textAlign: 'left' }}>STATUS</th>
+                                            <th style={{ padding: '12px', textAlign: 'left' }}>ACTIONS</th>
+                                        </table>
+                                    </thead>
+                                    <tbody>
+                                        {groupedInventory[category].map(product => (
+                                            <tr key={product._id} style={{ borderBottom: '1px solid #eee' }}>
+                                                <td style={{ padding: '12px' }}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>{product.imageUrl && <img src={product.imageUrl} alt={product.name} style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} onError={(e) => { e.target.style.display = 'none'; }} />}<span>{product.name}</span></div></td>
+                                                <td style={{ padding: '12px' }}>{product.barcode}</td>
+                                                <td style={{ padding: '12px' }}>{formatCurrency(product.sellingPrice)}</td>
+                                                <td style={{ padding: '12px' }}>{formatNumber(product.quantity)}</td>
+                                                <td style={{ padding: '12px' }}><span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '12px', backgroundColor: product.quantity <= (product.reorderLevel || 10) ? '#ff9800' : '#27ae60', color: 'white' }}>{product.quantity <= (product.reorderLevel || 10) ? 'Low Stock' : 'In Stock'}</span></td>
+                                                <td style={{ padding: '12px' }}>
+                                                    <button onClick={() => handleEditClick(product)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', marginRight: '10px' }}>✏️</button>
+                                                    <button onClick={() => handleDeleteProduct(product._id, product.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#e74c3c' }}>🗑️</button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                            <button onClick={clearCart} style={{ flex: 1, padding: '12px', backgroundColor: '#95a5a6', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Clear Cart</button>
-                            <button onClick={handleCheckout} style={{ flex: 2, padding: '12px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Complete Sale</button>
-                        </div>
-                    </>
+                    ))
                 )}
             </div>
-        </div>
-    );
+        );
+    };
 
-const renderInventoryTab = () => {
-    const groupedInventory = groupProductsByCategory(filteredProducts);
-    const inventoryCategories = Object.keys(groupedInventory).sort();
-
-    return (
-        <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-                <h2 style={{ margin: 0 }}>Inventory Management</h2>
-                <button onClick={() => setShowAddModal(true)} style={{ padding: '10px 20px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>+ Add Product</button>
+    const renderDashboardTab = () => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+                <StatCard title="Total Revenue" value={formatCurrency(0)} color="#2ecc71" />
+                <StatCard title="Total Sales" value={0} />
+                <StatCard title="Products in Stock" value={products.length} />
+                <StatCard title="Inventory Value" value={formatCurrency(inventoryValue)} color="#3498db" />
             </div>
-            
-            <input type="text" placeholder="Search by name, barcode, or category..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '20px', border: '1px solid #ddd', borderRadius: '5px' }} />
-            
-            {inventoryCategories.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No products found</div>
-            ) : (
-                inventoryCategories.map(category => (
-                    <div key={category} style={{ marginBottom: '30px' }}>
-                        <div style={{ backgroundColor: '#27ae60', color: 'white', padding: '10px 15px', borderRadius: '8px', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span>📦</span> {category}
-                            <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>
-                                {groupedInventory[category].length} items
-                            </span>
-                        </div>
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #ddd' }}>
-                                        <th style={{ padding: '12px', textAlign: 'left' }}>PRODUCT</th>
-                                        <th style={{ padding: '12px', textAlign: 'left' }}>BARCODE</th>
-                                        <th style={{ padding: '12px', textAlign: 'left' }}>PRICE</th>
-                                        <th style={{ padding: '12px', textAlign: 'left' }}>STOCK</th>
-                                        <th style={{ padding: '12px', textAlign: 'left' }}>STATUS</th>
-                                        <th style={{ padding: '12px', textAlign: 'left' }}>ACTIONS</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {groupedInventory[category].map(product => (
-                                        <tr key={product._id} style={{ borderBottom: '1px solid #eee' }}>
-                                            <td style={{ padding: '12px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    {product.imageUrl && <img src={product.imageUrl} alt={product.name} style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} onError={(e) => { e.target.style.display = 'none'; }} />}
-                                                    <span>{product.name}</span>
-                                                </div>
-                                            </td>
-                                            <td style={{ padding: '12px' }}>{product.barcode}</td>
-                                            <td style={{ padding: '12px' }}>{formatCurrency(product.sellingPrice)}</td>
-                                            <td style={{ padding: '12px' }}>{formatNumber(product.quantity)}</td>
-                                            <td style={{ padding: '12px' }}>
-                                                <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '12px', backgroundColor: product.quantity <= (product.reorderLevel || 10) ? '#ff9800' : '#27ae60', color: 'white' }}>
-                                                    {product.quantity <= (product.reorderLevel || 10) ? 'Low Stock' : 'In Stock'}
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '12px' }}>
-                                                <button onClick={() => handleEditClick(product)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', marginRight: '10px' }} title="Edit">✏️</button>
-                                                <button onClick={() => handleDeleteProduct(product._id, product.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#e74c3c' }} title="Delete">🗑️</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '10px' }}>
+                    <h3>Sales Trend (Last 7 Days)</h3>
+                    <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
+                        {salesData.map((value, i) => <div key={i} style={{ textAlign: 'center', width: '50px' }}><div style={{ height: `${Math.max(5, value)}px`, backgroundColor: '#3498db', borderRadius: '4px', marginBottom: '5px' }}></div><div style={{ fontSize: '11px' }}>{last7Days[i]}</div></div>)}
                     </div>
-                ))
-            )}
-        </div>
-    );
-};
-
-            const renderDashboardTab = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
-            <StatCard title="Total Revenue" value={formatCurrency(0)} color="#2ecc71" />
-            <StatCard title="Total Sales" value={0} />
-            <StatCard title="Products in Stock" value={products.length} />
-            <StatCard title="Inventory Value" value={formatCurrency(inventoryValue)} color="#3498db" />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '10px' }}>
-                <h3>Sales Trend (Last 7 Days)</h3>
-                <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
-                    {salesData.map((value, i) => (
-                        <div key={i} style={{ textAlign: 'center', width: '50px' }}>
-                            <div style={{ height: `${Math.max(5, value)}px`, backgroundColor: '#3498db', borderRadius: '4px', marginBottom: '5px' }}></div>
-                            <div style={{ fontSize: '11px' }}>{last7Days[i]}</div>
+                </div>
+                <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '10px' }}>
+                    <h3>Products by Category</h3>
+                    {Object.entries(categorySummary).sort((a, b) => a[0].localeCompare(b[0])).map(([cat, val]) => (
+                        <div key={cat} style={{ marginBottom: '10px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{cat}</span><span style={{ fontWeight: 'bold' }}>{formatCurrency(val)}</span></div>
+                            <div style={{ width: '100%', backgroundColor: '#ecf0f1', borderRadius: '4px', height: '8px', marginTop: '4px' }}><div style={{ width: `${Math.min(100, (val / inventoryValue) * 100)}%`, height: '8px', backgroundColor: '#3498db', borderRadius: '4px' }}></div></div>
                         </div>
                     ))}
-                </div>
-            </div>
-            <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '10px' }}>
-                <h3>Products by Category</h3>
-                {Object.entries(categorySummary).sort((a, b) => a[0].localeCompare(b[0])).map(([cat, val]) => (
-                    <div key={cat} style={{ marginBottom: '10px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>{cat}</span>
-                            <span style={{ fontWeight: 'bold' }}>{formatCurrency(val)}</span>
-                        </div>
-                        <div style={{ width: '100%', backgroundColor: '#ecf0f1', borderRadius: '4px', height: '8px', marginTop: '4px' }}>
-                            <div style={{ width: `${Math.min(100, (val / inventoryValue) * 100)}%`, height: '8px', backgroundColor: '#3498db', borderRadius: '4px' }}></div>
-                        </div>
-                    </div>
-                ))}
-                <div style={{ marginTop: '15px', paddingTop: '10px', borderTop: '1px solid #eee' }}>
-                    <span>Total Inventory Value: </span>
-                    <span style={{ fontWeight: 'bold', color: '#2ecc71' }}>{formatCurrency(inventoryValue)}</span>
+                    <div style={{ marginTop: '15px', paddingTop: '10px', borderTop: '1px solid #eee' }}><span>Total Inventory Value: </span><span style={{ fontWeight: 'bold', color: '#2ecc71' }}>{formatCurrency(inventoryValue)}</span></div>
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
 
     const renderLowStockModal = () => (
         <Modal show={showLowStockModal} onClose={() => setShowLowStockModal(false)} title="Low Stock Alert" width="500px">
