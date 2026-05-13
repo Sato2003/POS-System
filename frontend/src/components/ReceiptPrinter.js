@@ -76,7 +76,7 @@ export const printReceipt = (saleData) => {
     receipt += `Bus. Style: ---\n`;
     receipt += thinLine() + '\n';
 
-    // Items Header - Fixed alignment
+    // Items Header
     receipt += padText('ITEM', 28) + padText('QTY', 5) + padText('PRICE', 8) + padText('TOTAL', 8) + '\n';
     receipt += thinLine() + '\n';
 
@@ -99,7 +99,7 @@ export const printReceipt = (saleData) => {
     receipt += padText(`${formatNumber(totalItems)} Item(s)`, 49) + '\n';
     receipt += line() + '\n';
 
-    // Payment Summary - Fixed to show values
+    // Payment Summary
     receipt += padText(`AMOUNT DUE:`, 35) + padText(formatMoney(total), 13) + '\n';
     receipt += padText(`Cash:`, 35) + padText(formatMoney(cashAmount || total), 13) + '\n';
     receipt += padText(`CHANGE:`, 35) + padText(formatMoney(change), 13) + '\n';
@@ -141,15 +141,17 @@ export const printReceipt = (saleData) => {
     receipt += center('*** END OF RECEIPT ***') + '\n';
     receipt += '\n\n';
 
-    // Print
-    const printWindow = window.open('', '_blank', 'width=450,height=700');
+    // AUTO PRINT - No pop-up window
+    const printFrame = document.createElement('iframe');
+    printFrame.style.position = 'absolute';
+    printFrame.style.width = '0';
+    printFrame.style.height = '0';
+    printFrame.style.border = 'none';
+    document.body.appendChild(printFrame);
 
-    if (!printWindow) {
-        alert('Please allow pop-ups for this site to print receipts.');
-        return;
-    }
-
-    printWindow.document.write(`
+    const frameDoc = printFrame.contentWindow.document;
+    frameDoc.open();
+    frameDoc.write(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -184,16 +186,15 @@ export const printReceipt = (saleData) => {
         <body>
             <pre>${receipt}</pre>
             <script>
+                // Auto print immediately
+                window.print();
+                // Close the frame after printing
                 setTimeout(function() {
-                    window.print();
-                    setTimeout(function() {
-                        window.close();
-                    }, 1000);
-                }, 500);
+                    window.parent.document.body.removeChild(window.frameElement);
+                }, 1000);
             <\/script>
         </body>
         </html>
     `);
-
-    printWindow.document.close();
+    frameDoc.close();
 };
