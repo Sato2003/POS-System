@@ -7,14 +7,20 @@ export const printReceipt = (saleData) => {
         total,
         customerName,
         cashierName,
-        paymentMethod
+        paymentMethod,
+        change = 0,
+        cashAmount = 0,
+        baggerName = 'AKISATO',
+        terminalId = 'POS_PARI2',
+        transNumber = invoiceNumber,
+        siNumber = invoiceNumber
     } = saleData;
 
     const formatMoney = (amount) => {
         const num = Number(amount) || 0;
-        return 'PHP ' + num.toLocaleString('en-PH', { 
-            minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
+        return 'P ' + num.toLocaleString('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
         });
     };
 
@@ -22,81 +28,158 @@ export const printReceipt = (saleData) => {
         return Number(num || 0).toLocaleString('en-PH');
     };
 
-    const center = (text) => {
-        const width = 32;
+    const formatDate = () => {
+        const now = new Date();
+        return now.toLocaleString('en-PH', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        });
+    };
+
+    const center = (text, width = 48) => {
         const padding = Math.max(0, (width - text.length) / 2);
         return ' '.repeat(Math.floor(padding)) + text;
     };
 
+    const line = (width = 48) => {
+        return '='.repeat(width);
+    };
+
+    const thinLine = (width = 48) => {
+        return '-'.repeat(width);
+    };
+
+    // Business Information
+    const businessName = "POS SYSTEM";
+    const address = "Cebu City";
+    const vatTin = "VAT REG TIN: 001-588-219-003";
+    const serialNo = "SN: Z2APETRG MIN: 120277459";
+
     let receipt = '';
-    
-    
-    receipt += '================================\n';
-    receipt += center('POS SYSTEM') + '\n';
-    receipt += center('123 Business Street') + '\n';
-    receipt += center('Tel: (123) 456-7890') + '\n';
-    receipt += center('VAT REG: 12-345-6789') + '\n';
-    receipt += '================================\n';
-    receipt += `INVOICE: ${invoiceNumber}\n`;
-    receipt += `DATE: ${new Date().toLocaleString()}\n`;
-    receipt += `CASHIER: ${cashierName || 'Cashier'}\n`;
-    receipt += `CUSTOMER: ${customerName || 'Walk-in'}\n`;
-    receipt += `PAYMENT: ${paymentMethod || 'Cash'}\n`;
-    receipt += '--------------------------------\n';
-    receipt += 'ITEM               QTY     TOTAL\n';
-    receipt += '--------------------------------\n';
-    
-    // Items - use consistent price field
+
+    // Header Section
+    receipt += '\n';
+    receipt += center(businessName) + '\n';
+    receipt += center(address) + '\n';
+    receipt += center(vatTin) + '\n';
+    receipt += center(serialNo) + '\n';
+    receipt += line() + '\n';
+    receipt += center('SALES INVOICE') + '\n';
+    receipt += line() + '\n';
+
+    // Transaction Details
+    receipt += `Terminal: ${terminalId}\n`;
+    receipt += `Trans #: ${transNumber}\n`;
+    receipt += `SI #: ${siNumber}\n`;
+    receipt += `Cashier: ${cashierName || 'Cashier'}\n`;
+    receipt += `Bagger: ${baggerName}\n`;
+    receipt += `Customer: ${customerName || 'Walk-in Customer'}\n`;
+    receipt += `TIN: ---\n`;
+    receipt += `Address: ---\n`;
+    receipt += `Bus. Style: ---\n`;
+    receipt += thinLine() + '\n';
+
+    // Items Header
+    receipt += padText('ITEM', 28) + padText('QTY', 5) + padText('PRICE', 8) + padText('TOTAL', 8) + '\n';
+    receipt += thinLine() + '\n';
+
+    // Items
+    let totalItems = 0;
     items.forEach(item => {
-        // Get price - handle both 'sellingPrice' and 'unitPrice' and 'price'
-        const price = item.unitPrice || item.sellingPrice || item.price || 0;
-        const itemName = item.name || 'Unknown Item';
+        const name = (item.name || 'Unknown Item').substring(0, 28);
         const quantity = item.quantity || 1;
+        const price = item.unitPrice || item.sellingPrice || item.price || 0;
         const itemTotal = price * quantity;
-        
-        let name = itemName.substring(0, 20).padEnd(20);
-        let qty = formatNumber(quantity).padStart(3);
-        let totalStr = formatMoney(itemTotal).padStart(12);
-        receipt += `${name} ${qty} ${totalStr}\n`;
+        totalItems += quantity;
+
+        receipt += padText(name, 28);
+        receipt += padText(formatNumber(quantity), 5);
+        receipt += padText(formatMoney(price), 8);
+        receipt += padText(formatMoney(itemTotal), 8) + '\n';
     });
-    
-    receipt += '--------------------------------\n';
-    
-    
-    receipt += `SUBTOTAL:${' '.repeat(18)}${formatMoney(subtotal)}\n`;
-    receipt += `VAT (12%):${' '.repeat(18)}${formatMoney(tax)}\n`;
-    receipt += '================================\n';
-    receipt += `TOTAL:${' '.repeat(21)}${formatMoney(total)}\n`;
-    receipt += '================================\n';
-    receipt += center('THANK YOU FOR SHOPPING!') + '\n';
-    receipt += center('Returns accepted within 7 days') + '\n';
-    receipt += center('Keep this receipt for warranty') + '\n';
-    receipt += '================================\n';
+
+    receipt += thinLine() + '\n';
+    receipt += padText(`${formatNumber(totalItems)} Item(s)`, 49) + '\n';
+    receipt += line() + '\n';
+
+    // Payment Summary
+    receipt += padText(`AMOUNT DUE:`, 35) + padText(formatMoney(total), 13) + '\n';
+    receipt += padText(`Cash:`, 35) + padText(formatMoney(cashAmount || total), 13) + '\n';
+    receipt += padText(`CHANGE:`, 35) + padText(formatMoney(change), 13) + '\n';
+    receipt += thinLine() + '\n';
+
+    // VAT Breakdown
+    const vatableSales = subtotal;
+    const vatExemptSales = 0;
+    const zeroRatedSales = 0;
+    const vatAmount = tax;
+
+    receipt += padText(`VATABLE SALES:`, 35) + padText(formatMoney(vatableSales), 13) + '\n';
+    receipt += padText(`VAT-EXEMPT SALES:`, 35) + padText(formatMoney(vatExemptSales), 13) + '\n';
+    receipt += padText(`ZERO-RATED SALES:`, 35) + padText(formatMoney(zeroRatedSales), 13) + '\n';
+    receipt += thinLine() + '\n';
+    receipt += padText(`Total Sales:`, 35) + padText(formatMoney(vatableSales), 13) + '\n';
+    receipt += padText(`VAT AMOUNT:`, 35) + padText(formatMoney(vatAmount), 13) + '\n';
+    receipt += line() + '\n';
+    receipt += padText(`Total Amount:`, 35) + padText(formatMoney(total), 13) + '\n';
+    receipt += padText(`Grocery:`, 35) + padText(formatMoney(total), 13) + '\n';
+    receipt += padText(`Non Grocery:`, 35) + padText(formatMoney(0), 13) + '\n';
+    receipt += line() + '\n';
+
+    // POS Supplier Information
+    receipt += center('POS Supplier: IRIPPLE, INC.') + '\n';
+    receipt += center('2305B EAST TOWER PSE CENTER') + '\n';
+    receipt += center('EXCHANGE ROAD ORTIGAS CENTER') + '\n';
+    receipt += center('SAN ANTONIO PASIG CITY 1605') + '\n';
+    receipt += center('TIN: 008738621-00000') + '\n';
+    receipt += center('Accred No.: 43A009386212015030265') + '\n';
+    receipt += center('Valid Until: 07/31/2025') + '\n';
+    receipt += center('PTU: 0512-082-125811-003') + '\n';
+    receipt += center('Date Issued: 05/15/2026') + '\n';
+    receipt += line() + '\n';
+
+    // Footer
+    receipt += center('Thank you for shopping with us!') + '\n';
+    receipt += center('THIS SERVES AS YOUR SALES INVOICE') + '\n';
     receipt += center('*** END OF RECEIPT ***') + '\n';
     receipt += '\n\n';
 
-    const printWindow = window.open('', '_blank', 'width=400,height=600');
-    
+    // Helper function for text padding
+    function padText(text, width) {
+        const str = String(text);
+        if (str.length >= width) return str.substring(0, width);
+        return str + ' '.repeat(width - str.length);
+    }
+
+    // Print window
+    const printWindow = window.open('', '_blank', 'width=450,height=700');
+
     if (!printWindow) {
         alert('Please allow pop-ups for this site');
         return;
     }
-    
+
     printWindow.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Receipt - ${invoiceNumber}</title>
+            <title>Sales Invoice - ${invoiceNumber}</title>
             <style>
                 body {
                     font-family: 'Courier New', monospace;
-                    font-size: 12px;
+                    font-size: 11px;
                     margin: 0;
                     padding: 5mm;
+                    width: 80mm;
                 }
                 @media print {
                     @page {
-                        size: 58mm auto;
+                        size: 80mm auto;
                         margin: 0mm;
                     }
                     body {
@@ -108,6 +191,8 @@ export const printReceipt = (saleData) => {
                     margin: 0;
                     padding: 0;
                     white-space: pre-wrap;
+                    font-family: 'Courier New', monospace;
+                    font-size: 11px;
                 }
             </style>
         </head>
@@ -124,6 +209,6 @@ export const printReceipt = (saleData) => {
         </body>
         </html>
     `);
-    
+
     printWindow.document.close();
 };
