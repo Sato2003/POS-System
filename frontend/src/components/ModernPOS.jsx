@@ -345,7 +345,7 @@ const ModernPOS = () => {
                 {categories.length === 0 ? <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No products found</div> : categories.map(category => (
                     <div key={category} style={{ marginBottom: '30px' }}>
                         <div style={{ backgroundColor: '#3498db', color: 'white', padding: '10px 15px', borderRadius: '8px', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span>📁</span> {category} <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>{groupedProducts[category].length} items</span>
+                            <span></span> {category} <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>{groupedProducts[category].length} items</span>
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '15px' }}>
                             {groupedProducts[category].map(product => <ProductCard key={product._id} product={product} onAddToCart={(p) => addToCart(p, p.quantity)} />)}
@@ -388,11 +388,11 @@ const ModernPOS = () => {
                 {inventoryCategories.length === 0 ? <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No products found</div> : inventoryCategories.map(category => (
                     <div key={category} style={{ marginBottom: '30px' }}>
                         <div style={{ backgroundColor: '#27ae60', color: 'white', padding: '10px 15px', borderRadius: '8px', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span>📦</span> {category} <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>{groupedInventory[category].length} items</span>
+                            <span></span> {category} <span style={{ fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.3)', padding: '2px 8px', borderRadius: '20px' }}>{groupedInventory[category].length} items</span>
                         </div>
                         <div style={{ overflowX: 'auto' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead><tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #ddd' }}><th style={{ padding: '12px' }}>PRODUCT</th><th style={{ padding: '12px' }}>BARCODE</th><th style={{ padding: '12px' }}>PRICE</th><th style={{ padding: '12px' }}>STOCK</th><th style={{ padding: '12px' }}>STATUS</th><th style={{ padding: '12px' }}>ACTIONS</th>}</tr></thead>
+                                <thead><tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #ddd' }}><th style={{ padding: '12px' }}>PRODUCT</th><th style={{ padding: '12px' }}>BARCODE</th><th style={{ padding: '12px' }}>PRICE</th><th style={{ padding: '12px' }}>STOCK</th><th style={{ padding: '12px' }}>STATUS</th><th style={{ padding: '12px' }}>ACTIONS</th></tr></thead>
                                 <tbody>{groupedInventory[category].map(product => (
                                     <tr key={product._id} style={{ borderBottom: '1px solid #eee' }}>
                                         <td style={{ padding: '12px' }}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>{product.imageUrl && <img src={product.imageUrl} alt={product.name} style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} onError={(e) => { e.target.style.display = 'none'; }} />}{product.name}</div></td>
@@ -400,7 +400,7 @@ const ModernPOS = () => {
                                         <td style={{ padding: '12px' }}>{formatCurrency(product.sellingPrice)}</td>
                                         <td style={{ padding: '12px' }}>{formatNumber(product.quantity)}</td>
                                         <td style={{ padding: '12px' }}><span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '12px', backgroundColor: product.quantity <= (product.reorderLevel || 10) ? '#ff9800' : '#27ae60', color: 'white' }}>{product.quantity <= (product.reorderLevel || 10) ? 'Low Stock' : 'In Stock'}</span></td>
-                                        <td style={{ padding: '12px' }}><button onClick={() => handleEditClick(product)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', marginRight: '10px' }}>✏️</button><button onClick={() => handleDeleteProduct(product._id, product.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#e74c3c' }}>🗑️</button></td>
+                                        <td style={{ padding: '12px' }}><button onClick={() => handleEditClick(product)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', marginRight: '10px' }}>EDIT</button><button onClick={() => handleDeleteProduct(product._id, product.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#e74c3c' }}>DELETE</button></td>
                                     </tr>
                                 ))}</tbody>
                             </table>
