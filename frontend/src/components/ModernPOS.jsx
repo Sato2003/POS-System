@@ -522,7 +522,7 @@ const ModernPOS = () => {
 
             {/* Cash Amount Input - No pop-up needed */}
 <div style={{ marginBottom: '15px' }}>
-    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '13px' }}>💵 Cash Amount</label>
+    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '13px' }}>Cash Amount</label>
     <input
         type="number"
         placeholder="Enter cash amount..."
