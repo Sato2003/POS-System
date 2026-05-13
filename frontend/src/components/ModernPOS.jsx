@@ -20,7 +20,12 @@ const Modal = ({ show, onClose, title, children, width = '500px' }) => {
 };
 
 // Helper functions (defined OUTSIDE component)
-const formatCurrency = (amount) => '₱' + (amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const formatCurrency = (amount) => {
+    return '₱' + (amount || 0).toLocaleString('en-PH', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+};
 const formatNumber = (num) => (num || 0).toLocaleString('en-PH');
 
 const groupByCategory = (products) => {
@@ -452,7 +457,7 @@ const ModernPOS = () => {
 
     // RENDER FUNCTIONS
     const renderPOSTab = () => (
-        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'stretch }}>
             <div style={{ flex: 2, backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
                 <h2>Products</h2>
                 <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
