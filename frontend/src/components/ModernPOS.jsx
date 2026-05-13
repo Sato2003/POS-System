@@ -4,7 +4,7 @@ import { printReceipt } from './ReceiptPrinter';
 import ImageUpload from './ImageUpload';
 import API_URL from '../config';
 
-// Modal component - must be defined before use
+
 const Modal = ({ show, onClose, title, children, width = '500px' }) => {
     if (!show) return null;
     
