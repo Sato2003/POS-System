@@ -527,7 +527,7 @@ const ModernPOS = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '18px', fontWeight: 'bold', color: '#2ecc71' }}><span>Total:</span><strong>{formatCurrency(total)}</strong></div>
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <button onClick={clearCart} style={{ flex: 1, padding: '10px', backgroundColor: '#95a5a6', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>Clear Cart</button>
-                        <button onClick={handleCheckout} style={{ flex: 1, padding: '10px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>Complete Sale</button>
+                        <button onClick={handleCheckout} style={{ flex: 1, padding: '10px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>Print receipt</button>
                     </div>
                 </div>
             )}
