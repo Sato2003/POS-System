@@ -7,94 +7,123 @@ export const printReceipt = (saleData) => {
         total,
         customerName,
         cashierName,
-        change = 0,
-        cashAmount = 0,
-        baggerName = 'AKISATO',
-        terminalId = 'POS_PARI2',
+        paymentMethod
     } = saleData;
 
     const formatMoney = (amount) => {
         const num = Number(amount) || 0;
-        return 'P ' + num.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return 'PHP ' + num.toLocaleString('en-PH', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
     };
 
-    const formatNumber = (num) => Number(num || 0).toLocaleString('en-PH');
-    
-    const center = (text, width = 48) => ' '.repeat(Math.max(0, Math.floor((width - text.length) / 2))) + text;
-    const line = (width = 48) => '='.repeat(width);
-    const thinLine = (width = 48) => '-'.repeat(width);
-    
-    function padText(text, width) {
-        const str = String(text);
-        return str.length >= width ? str.substring(0, width) : str + ' '.repeat(width - str.length);
-    }
+    const formatNumber = (num) => {
+        return Number(num || 0).toLocaleString('en-PH');
+    };
+
+    const center = (text) => {
+        const width = 32;
+        const padding = Math.max(0, (width - text.length) / 2);
+        return ' '.repeat(Math.floor(padding)) + text;
+    };
 
     let receipt = '';
-
-    // Header
-    receipt += '\n' + center('FRINCE WAREHOUSE CLUB MANDAUE INC') + '\n';
-    receipt += center('Hi-way, Bulacao, Cebu City') + '\n';
-    receipt += center('VAT REG TIN: 001-588-219-003') + '\n';
-    receipt += line() + '\n';
-    receipt += center('SALES INVOICE') + '\n';
-    receipt += line() + '\n';
-
-    // Transaction Details
-    receipt += `Terminal: ${terminalId}\n`;
-    receipt += `Trans #: ${invoiceNumber}\n`;
-    receipt += `SI #: ${invoiceNumber}\n`;
-    receipt += `Cashier: ${cashierName || 'Cashier'}\n`;
-    receipt += `Bagger: ${baggerName}\n`;
-    receipt += `Customer: ${customerName || 'Walk-in Customer'}\n`;
-    receipt += thinLine() + '\n';
-
-    // Items
-    receipt += padText('ITEM', 28) + padText('QTY', 5) + padText('PRICE', 8) + padText('TOTAL', 8) + '\n';
-    receipt += thinLine() + '\n';
-
-    let totalItems = 0;
-    items.forEach(item => {
-        const name = (item.name || 'Unknown Item').substring(0, 28);
-        const qty = item.quantity || 1;
-        const price = item.unitPrice || item.sellingPrice || 0;
-        const itemTotal = price * qty;
-        totalItems += qty;
-
-        receipt += padText(name, 28);
-        receipt += padText(formatNumber(qty), 5);
-        receipt += padText(formatMoney(price), 8);
-        receipt += padText(formatMoney(itemTotal), 8) + '\n';
-    });
-
-    receipt += thinLine() + '\n';
-    receipt += padText(`${formatNumber(totalItems)} Item(s)`, 49) + '\n';
-    receipt += line() + '\n';
-
-    // Payment
-    receipt += padText(`AMOUNT DUE:`, 35) + padText(formatMoney(total), 13) + '\n';
-    receipt += padText(`Cash:`, 35) + padText(formatMoney(cashAmount || total), 13) + '\n';
-    receipt += padText(`CHANGE:`, 35) + padText(formatMoney(change), 13) + '\n';
-    receipt += thinLine() + '\n';
-
-    // VAT
-    receipt += padText(`VATABLE SALES:`, 35) + padText(formatMoney(subtotal), 13) + '\n';
-    receipt += padText(`VAT AMOUNT:`, 35) + padText(formatMoney(tax), 13) + '\n';
-    receipt += line() + '\n';
-    receipt += padText(`TOTAL AMOUNT:`, 35) + padText(formatMoney(total), 13) + '\n';
-    receipt += line() + '\n';
-
-    // Footer
-    receipt += center('Thank you for shopping with us!') + '\n';
-    receipt += center('*** END OF RECEIPT ***') + '\n';
-
-    // Print without pop-up
-    const printDiv = document.createElement('div');
-    printDiv.style.position = 'absolute';
-    printDiv.style.left = '-9999px';
-    printDiv.style.top = '-9999px';
-    printDiv.innerHTML = `<pre style="font-family:'Courier New',monospace;font-size:11px;margin:0;padding:5mm;">${receipt}</pre>`;
     
-    document.body.appendChild(printDiv);
-    window.print();
-    setTimeout(() => document.body.removeChild(printDiv), 1000);
+    
+    receipt += '================================\n';
+    receipt += center('POS SYSTEM') + '\n';
+    receipt += center('123 Business Street') + '\n';
+    receipt += center('Tel: (123) 456-7890') + '\n';
+    receipt += center('VAT REG: 12-345-6789') + '\n';
+    receipt += '================================\n';
+    receipt += `INVOICE: ${invoiceNumber}\n`;
+    receipt += `DATE: ${new Date().toLocaleString()}\n`;
+    receipt += `CASHIER: ${cashierName || 'Cashier'}\n`;
+    receipt += `CUSTOMER: ${customerName || 'Walk-in'}\n`;
+    receipt += `PAYMENT: ${paymentMethod || 'Cash'}\n`;
+    receipt += '--------------------------------\n';
+    receipt += 'ITEM               QTY     TOTAL\n';
+    receipt += '--------------------------------\n';
+    
+    // Items - use consistent price field
+    items.forEach(item => {
+        // Get price - handle both 'sellingPrice' and 'unitPrice' and 'price'
+        const price = item.unitPrice || item.sellingPrice || item.price || 0;
+        const itemName = item.name || 'Unknown Item';
+        const quantity = item.quantity || 1;
+        const itemTotal = price * quantity;
+        
+        let name = itemName.substring(0, 20).padEnd(20);
+        let qty = formatNumber(quantity).padStart(3);
+        let totalStr = formatMoney(itemTotal).padStart(12);
+        receipt += `${name} ${qty} ${totalStr}\n`;
+    });
+    
+    receipt += '--------------------------------\n';
+    
+    
+    receipt += `SUBTOTAL:${' '.repeat(18)}${formatMoney(subtotal)}\n`;
+    receipt += `VAT (12%):${' '.repeat(18)}${formatMoney(tax)}\n`;
+    receipt += '================================\n';
+    receipt += `TOTAL:${' '.repeat(21)}${formatMoney(total)}\n`;
+    receipt += '================================\n';
+    receipt += center('THANK YOU FOR SHOPPING!') + '\n';
+    receipt += center('Returns accepted within 7 days') + '\n';
+    receipt += center('Keep this receipt for warranty') + '\n';
+    receipt += '================================\n';
+    receipt += center('*** END OF RECEIPT ***') + '\n';
+    receipt += '\n\n';
+
+    const printWindow = window.open('', '_blank', 'width=400,height=600');
+    
+    if (!printWindow) {
+        alert('Please allow pop-ups for this site');
+        return;
+    }
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Receipt - ${invoiceNumber}</title>
+            <style>
+                body {
+                    font-family: 'Courier New', monospace;
+                    font-size: 12px;
+                    margin: 0;
+                    padding: 5mm;
+                }
+                @media print {
+                    @page {
+                        size: 58mm auto;
+                        margin: 0mm;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 2mm;
+                    }
+                }
+                pre {
+                    margin: 0;
+                    padding: 0;
+                    white-space: pre-wrap;
+                }
+            </style>
+        </head>
+        <body>
+            <pre>${receipt}</pre>
+            <script>
+                setTimeout(function() {
+                    window.print();
+                    setTimeout(function() {
+                        window.close();
+                    }, 1000);
+                }, 500);
+            <\/script>
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
 };
