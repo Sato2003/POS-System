@@ -1,16 +1,16 @@
 export const printReceipt = (saleData) => {
     const {
-        invoiceNumber,
-        items,
-        subtotal,
-        tax,
-        total,
-        customerName,
-        cashierName,
-        cashAmount = 0,
-        change = 0,
+        invoiceNumber = 'INV-1778716060286',
+        items = [],
+        subtotal = 206.00,
+        tax = 24.72,
+        total = 230.72,
+        customerName = 'Walk-in Customer',
+        cashierName = 'akisato',
+        cashAmount = 400.00,
+        change = 169.28,
         baggerName = 'AKISATO',
-        terminalId = 'POS_PARI2'
+        terminalId = 'POS_PAR12'
     } = saleData;
 
     const now = new Date();
@@ -50,7 +50,7 @@ export const printReceipt = (saleData) => {
 
     const formatMoney = (amount) => {
         const num = Number(amount) || 0;
-        return '₱ ' + num.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return '₱' + num.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
     const formatNumber = (num) => Number(num || 0).toLocaleString('en-PH');
@@ -63,23 +63,18 @@ export const printReceipt = (saleData) => {
     const line = (width = 48) => '='.repeat(width);
     const thinLine = (width = 48) => '-'.repeat(width);
 
-    function padText(text, width) {
+    const padText = (text, width) => {
         const str = String(text);
         if (str.length >= width) return str.substring(0, width);
         return str + ' '.repeat(width - str.length);
-    }
-
-    const businessName = "FRINCE WAREHOUSE INC";
-    const address = "Cebu City";
-    const vatTin = "VAT REG TIN: 001-588-219-003";
-    const serialNo = "SN: Z2APETRG MIN: 120277459";
+    };
 
     let receipt = '';
 
-    receipt += '\n' + center(businessName) + '\n';
-    receipt += center(address) + '\n';
-    receipt += center(vatTin) + '\n';
-    receipt += center(serialNo) + '\n';
+    receipt += '\n' + center('FRINCE WAREHOUSE INC') + '\n';
+    receipt += center('Cebu City') + '\n';
+    receipt += center('VAT REG TIN: 001-588-219-003') + '\n';
+    receipt += center('SN: Z2APETRG MIN: 120277459') + '\n';
     receipt += line() + '\n';
     receipt += center('SALES INVOICE') + '\n';
     receipt += line() + '\n';
@@ -87,15 +82,15 @@ export const printReceipt = (saleData) => {
     receipt += `Terminal: ${terminalId}\n`;
     receipt += `Trans #: ${invoiceNumber}\n`;
     receipt += `SI #: ${invoiceNumber}\n`;
-    receipt += `Cashier: ${cashierName || 'Cashier'}\n`;
+    receipt += `Cashier: ${cashierName}\n`;
     receipt += `Bagger: ${baggerName}\n`;
-    receipt += `Customer: ${customerName || 'Walk-in Customer'}\n`;
+    receipt += `Customer: ${customerName}\n`;
     receipt += `TIN: ---\n`;
     receipt += `Address: ---\n`;
     receipt += `Bus. Style: ---\n`;
     receipt += thinLine() + '\n';
 
-    receipt += padText('ITEM', 28) + padText('QTY', 5) + padText('PRICE', 8) + padText('TOTAL', 8) + '\n';
+    receipt += padText('ITEM', 28) + padText('QTY', 5) + padText('PRICE', 8) + padText('TOTAL', 7) + '\n';
     receipt += thinLine() + '\n';
 
     let totalItems = 0;
@@ -109,25 +104,22 @@ export const printReceipt = (saleData) => {
         receipt += padText(name, 28);
         receipt += padText(formatNumber(quantity), 5);
         receipt += padText(formatMoney(price), 8);
-        receipt += padText(formatMoney(itemTotal), 8) + '\n';
+        receipt += padText(formatMoney(itemTotal), 7) + '\n';
     });
 
     receipt += thinLine() + '\n';
-    receipt += padText(`${formatNumber(totalItems)} Item(s)`, 49) + '\n';
+    receipt += padText(` ${formatNumber(totalItems)} Item(s) `, 48) + '\n';
     receipt += line() + '\n';
 
-    receipt += padText(`AMOUNT DUE:`, 35) + padText(formatMoney(total), 13) + '\n';
-    receipt += padText(`Cash:`, 35) + padText(formatMoney(cashAmount || total), 13) + '\n';
-    receipt += padText(`CHANGE:`, 35) + padText(formatMoney(change), 13) + '\n';
+    receipt += padText('AMOUNT DUE:', 35) + padText(formatMoney(total), 13) + '\n';
+    receipt += padText('Cash:', 35) + padText(formatMoney(cashAmount), 13) + '\n';
+    receipt += padText('CHANGE:', 35) + padText(formatMoney(change), 13) + '\n';
     receipt += thinLine() + '\n';
 
-    const vatableSales = subtotal;
-    const vatAmount = tax;
-
-    receipt += padText(`VATABLE SALES:`, 35) + padText(formatMoney(vatableSales), 13) + '\n';
-    receipt += padText(`VAT AMOUNT:`, 35) + padText(formatMoney(vatAmount), 13) + '\n';
+    receipt += padText('VATABLE SALES:', 35) + padText(formatMoney(subtotal), 13) + '\n';
+    receipt += padText('VAT AMOUNT:', 35) + padText(formatMoney(tax), 13) + '\n';
     receipt += line() + '\n';
-    receipt += padText(`Total Amount:`, 35) + padText(formatMoney(total), 13) + '\n';
+    receipt += padText('Total Amount:', 35) + padText(formatMoney(total), 13) + '\n';
     receipt += line() + '\n';
 
     receipt += center('POS Supplier: IRIPPLE, INC.') + '\n';
@@ -145,7 +137,6 @@ export const printReceipt = (saleData) => {
     receipt += center('*** END OF RECEIPT ***') + '\n';
     receipt += '\n\n';
 
-    // OPTIMIZED FOR PRTEC 58mm - Sharp and clear
     const printFrame = document.createElement('iframe');
     printFrame.style.position = 'absolute';
     printFrame.style.width = '0';
@@ -161,40 +152,39 @@ export const printReceipt = (saleData) => {
         <head>
             <title>Sales Invoice - ${invoiceNumber}</title>
             <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    body {
-        font-family: 'Courier New', 'Courier', monospace;
-        font-size: 9.5px;
-        font-weight: bold;
-        width: 58mm;
-        margin: 0;
-        padding: 1.5mm;
-    }
-    @media print {
-        @page {
-            size: 58mm auto;
-            margin: 0mm;
-        }
-        body {
-            margin: 0;
-            padding: 1.5mm;
-        }
-    }
-    pre {
-        margin: 0;
-        padding: 0;
-        white-space: pre-wrap;
-        font-family: 'Courier New', 'Courier', monospace;
-        font-size: 9.5px;
-        font-weight: bold;
-        line-height: 1.3;
-        letter-spacing: 0.2px;
-    }
-</style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                body {
+                    font-family: 'Courier New', 'Courier', monospace;
+                    font-size: 9.5px;
+                    font-weight: bold;
+                    width: 58mm;
+                    margin: 0;
+                    padding: 1.5mm;
+                }
+                @media print {
+                    @page {
+                        size: 58mm auto;
+                        margin: 0mm;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 1.5mm;
+                    }
+                }
+                pre {
+                    margin: 0;
+                    padding: 0;
+                    white-space: pre-wrap;
+                    font-family: 'Courier New', 'Courier', monospace;
+                    font-size: 9.5px;
+                    font-weight: bold;
+                    line-height: 1.3;
+                }
+            </style>
         </head>
         <body>
             <pre>${receipt}</pre>
