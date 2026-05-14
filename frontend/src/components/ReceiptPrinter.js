@@ -55,13 +55,16 @@ export const printReceipt = (saleData) => {
 
     const formatNumber = (num) => Number(num || 0).toLocaleString('en-PH');
 
-    const center = (text, width = 44) => {
+    // FIXED: 42 characters max width
+    const MAX_WIDTH = 42;
+    
+    const center = (text, width = MAX_WIDTH) => {
         const padding = Math.max(0, (width - text.length) / 2);
         return ' '.repeat(Math.floor(padding)) + text;
     };
 
-    const line = (char = '=', width = 44) => char.repeat(width);
-    const thinLine = (char = '-', width = 44) => char.repeat(width);
+    const line = (char = '=', width = MAX_WIDTH) => char.repeat(width);
+    const thinLine = (char = '-', width = MAX_WIDTH) => char.repeat(width);
 
     const padLeft = (text, width) => {
         const str = String(text);
@@ -77,7 +80,6 @@ export const printReceipt = (saleData) => {
 
     let receipt = '\n';
 
-    // Header
     receipt += center('FRINCE WAREHOUSE INC') + '\n';
     receipt += center('Cebu City') + '\n';
     receipt += center('VAT REG TIN: 001-588-219-003') + '\n';
@@ -86,7 +88,6 @@ export const printReceipt = (saleData) => {
     receipt += center('SALES INVOICE') + '\n';
     receipt += line() + '\n';
 
-    // Transaction info
     receipt += `Terminal: ${terminalId}\n`;
     receipt += `Trans #: ${invoiceNumber}\n`;
     receipt += `SI #: ${invoiceNumber}\n`;
@@ -98,43 +99,41 @@ export const printReceipt = (saleData) => {
     receipt += `Bus. Style: ---\n`;
     receipt += thinLine() + '\n';
 
-    // Column headers (fits in 44 chars: 24+4+7+7=42)
-    receipt += padRight('ITEM', 24) + padRight('QTY', 4) + padRight('PRICE', 7) + padRight('TOTAL', 7) + '\n';
+    // Column headers (fits in 42 chars: 23+4+7+6=40)
+    receipt += padRight('ITEM', 23) + padRight('QTY', 4) + padRight('PRICE', 7) + padRight('TOTAL', 6) + '\n';
     receipt += thinLine() + '\n';
 
-    // Items
     let totalItems = 0;
     items.forEach(item => {
-        const name = (item.name || 'Unknown Item').substring(0, 24);
+        const name = (item.name || 'Unknown Item').substring(0, 23);
         const quantity = item.quantity || 1;
         const price = item.unitPrice || item.sellingPrice || item.price || 0;
         const itemTotal = price * quantity;
         totalItems += quantity;
 
-        receipt += padRight(name, 24);
+        receipt += padRight(name, 23);
         receipt += padLeft(formatNumber(quantity), 4);
         receipt += padLeft(formatMoney(price), 7);
-        receipt += padLeft(formatMoney(itemTotal), 7) + '\n';
+        receipt += padLeft(formatMoney(itemTotal), 6) + '\n';
     });
 
     receipt += thinLine() + '\n';
     receipt += center(`${formatNumber(totalItems)} Item(s)`) + '\n';
     receipt += line() + '\n';
 
-    // Payment (30 + 14 = 44)
-    receipt += padRight('AMOUNT DUE:', 30) + padLeft(formatMoney(total), 14) + '\n';
-    receipt += padRight('Cash:', 30) + padLeft(formatMoney(cashAmount), 14) + '\n';
-    receipt += padRight('CHANGE:', 30) + padLeft(formatMoney(change), 14) + '\n';
+    // FIXED: Payment section - 28 + 14 = 42
+    receipt += padRight('AMOUNT DUE:', 28) + padLeft(formatMoney(total), 14) + '\n';
+    receipt += padRight('Cash:', 28) + padLeft(formatMoney(cashAmount), 14) + '\n';
+    receipt += padRight('CHANGE:', 28) + padLeft(formatMoney(change), 14) + '\n';
     receipt += thinLine() + '\n';
 
-    // VAT
-    receipt += padRight('VATABLE SALES:', 30) + padLeft(formatMoney(subtotal), 14) + '\n';
-    receipt += padRight('VAT AMOUNT:', 30) + padLeft(formatMoney(tax), 14) + '\n';
+    // FIXED: VAT section - 28 + 14 = 42
+    receipt += padRight('VATABLE SALES:', 28) + padLeft(formatMoney(subtotal), 14) + '\n';
+    receipt += padRight('VAT AMOUNT:', 28) + padLeft(formatMoney(tax), 14) + '\n';
     receipt += line() + '\n';
-    receipt += padRight('Total Amount:', 30) + padLeft(formatMoney(total), 14) + '\n';
+    receipt += padRight('Total Amount:', 28) + padLeft(formatMoney(total), 14) + '\n';
     receipt += line() + '\n';
 
-    // Footer
     receipt += center('POS Supplier: IRIPPLE, INC.') + '\n';
     receipt += center('2305B EAST TOWER PSE CENTER') + '\n';
     receipt += center('EXCHANGE ROAD ORTIGAS CENTER') + '\n';
@@ -149,7 +148,6 @@ export const printReceipt = (saleData) => {
     receipt += center('*** END OF RECEIPT ***') + '\n';
     receipt += '\n\n';
 
-    // Print
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
         <!DOCTYPE html>
@@ -167,7 +165,7 @@ export const printReceipt = (saleData) => {
                     font-family: 'Courier New', 'Courier', monospace;
                     font-size: 9px;
                     font-weight: bold;
-                    width: 58mm;
+                    width: 56mm;
                     margin: 0;
                     padding: 1.5mm;
                     background: white;
