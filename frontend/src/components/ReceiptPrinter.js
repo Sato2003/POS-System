@@ -1,6 +1,6 @@
 export const printReceipt = (saleData) => {
     const {
-        invoiceNumber = 'INV-1778717599867',
+        invoiceNumber = 'INV-1778718016088',
         items = [],
         subtotal = 206.00,
         tax = 24.72,
@@ -60,13 +60,12 @@ export const printReceipt = (saleData) => {
         return ' '.repeat(Math.floor(padding)) + text;
     };
 
-    const line = (char = '=', width = 48) => char.repeat(width);
-    const thinLine = (char = '-', width = 48) => char.repeat(width);
+    const line = (width = 48) => '='.repeat(width);
+    const thinLine = (width = 48) => '-'.repeat(width);
 
-    const padText = (text, width, align = 'left') => {
+    const padText = (text, width) => {
         const str = String(text);
         if (str.length >= width) return str.substring(0, width);
-        if (align === 'right') return ' '.repeat(width - str.length) + str;
         return str + ' '.repeat(width - str.length);
     };
 
@@ -137,76 +136,60 @@ export const printReceipt = (saleData) => {
     receipt += center('*** END OF RECEIPT ***') + '\n';
     receipt += '\n\n';
 
-    // Brave-compatible print method
-    const printContent = `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sales Invoice - ${invoiceNumber}</title>
-    <meta charset="UTF-8">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Courier New', 'Courier', monospace;
-            font-size: 9px;
-            font-weight: bold;
-            width: 58mm;
-            margin: 0;
-            padding: 2mm;
-            background: white;
-        }
-        @media print {
-            @page {
-                size: 58mm auto;
-                margin: 0mm;
-            }
-            body {
-                margin: 0;
-                padding: 2mm;
-            }
-            pre {
-                margin: 0;
-                padding: 0;
-                white-space: pre;
-                font-family: 'Courier New', 'Courier', monospace;
-                font-size: 9px;
-                font-weight: bold;
-                line-height: 1.2;
-            }
-        }
-        pre {
-            margin: 0;
-            padding: 0;
-            white-space: pre;
-            font-family: 'Courier New', 'Courier', monospace;
-            font-size: 9px;
-            font-weight: bold;
-            line-height: 1.2;
-        }
-    </style>
-</head>
-<body>
-    <pre>${receipt}</pre>
-    <script>
-        window.onload = function() {
-            window.print();
-            setTimeout(function() {
-                window.close();
-            }, 500);
-        };
-    <\/script>
-</body>
-</html>`;
-
-    const blob = new Blob([printContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const printWindow = window.open(url, '_blank', 'width=400,height=600');
-    
-    setTimeout(() => {
-        URL.revokeObjectURL(url);
-    }, 1000);
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Sales Invoice - ${invoiceNumber}</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                body {
+                    font-family: 'Courier New', 'Courier', monospace;
+                    font-size: 9.5px;
+                    font-weight: bold;
+                    width: 58mm;
+                    margin: 0;
+                    padding: 2mm;
+                    background: white;
+                }
+                @media print {
+                    @page {
+                        size: 58mm auto;
+                        margin: 0mm;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 2mm;
+                    }
+                }
+                pre {
+                    margin: 0;
+                    padding: 0;
+                    white-space: pre;
+                    font-family: 'Courier New', 'Courier', monospace;
+                    font-size: 9.5px;
+                    font-weight: bold;
+                    line-height: 1.3;
+                }
+            </style>
+        </head>
+        <body>
+            <pre>${receipt}</pre>
+            <script>
+                window.onload = function() {
+                    window.print();
+                    setTimeout(function() {
+                        window.close();
+                    }, 1000);
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
 };
