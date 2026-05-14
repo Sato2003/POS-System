@@ -1,14 +1,14 @@
 export const printReceipt = (saleData) => {
     const {
-        invoiceNumber = 'INV-1778718016088',
+        invoiceNumber = 'INV-1778719277761',
         items = [],
-        subtotal = 206.00,
-        tax = 24.72,
-        total = 230.72,
+        subtotal = 255.50,
+        tax = 30.66,
+        total = 286.16,
         customerName = 'Walk-in Customer',
         cashierName = 'akisato',
         cashAmount = 300.00,
-        change = 69.28,
+        change = 13.84,
         baggerName = 'AKISATO',
         terminalId = 'POS_PAR12'
     } = saleData;
@@ -55,8 +55,8 @@ export const printReceipt = (saleData) => {
 
     const formatNumber = (num) => Number(num || 0).toLocaleString('en-PH');
 
-    // FIXED: 42 characters max width
-    const MAX_WIDTH = 42;
+    // Use 38 characters max - leaves 3 spaces margin on each side
+    const MAX_WIDTH = 38;
     
     const center = (text, width = MAX_WIDTH) => {
         const padding = Math.max(0, (width - text.length) / 2);
@@ -99,39 +99,39 @@ export const printReceipt = (saleData) => {
     receipt += `Bus. Style: ---\n`;
     receipt += thinLine() + '\n';
 
-    // Column headers (fits in 42 chars: 23+4+7+6=40)
-    receipt += padRight('ITEM', 23) + padRight('QTY', 4) + padRight('PRICE', 7) + padRight('TOTAL', 6) + '\n';
+    // Column headers (fits in 38 chars: 21+3+7+5=36)
+    receipt += padRight('ITEM', 21) + padRight('QTY', 3) + padRight('PRICE', 7) + padRight('TOTAL', 5) + '\n';
     receipt += thinLine() + '\n';
 
     let totalItems = 0;
     items.forEach(item => {
-        const name = (item.name || 'Unknown Item').substring(0, 23);
+        const name = (item.name || 'Unknown Item').substring(0, 21);
         const quantity = item.quantity || 1;
         const price = item.unitPrice || item.sellingPrice || item.price || 0;
         const itemTotal = price * quantity;
         totalItems += quantity;
 
-        receipt += padRight(name, 23);
-        receipt += padLeft(formatNumber(quantity), 4);
+        receipt += padRight(name, 21);
+        receipt += padLeft(formatNumber(quantity), 3);
         receipt += padLeft(formatMoney(price), 7);
-        receipt += padLeft(formatMoney(itemTotal), 6) + '\n';
+        receipt += padLeft(formatMoney(itemTotal), 5) + '\n';
     });
 
     receipt += thinLine() + '\n';
     receipt += center(`${formatNumber(totalItems)} Item(s)`) + '\n';
     receipt += line() + '\n';
 
-    // FIXED: Payment section - 28 + 14 = 42
-    receipt += padRight('AMOUNT DUE:', 28) + padLeft(formatMoney(total), 14) + '\n';
-    receipt += padRight('Cash:', 28) + padLeft(formatMoney(cashAmount), 14) + '\n';
-    receipt += padRight('CHANGE:', 28) + padLeft(formatMoney(change), 14) + '\n';
+    // Payment section - 24 + 12 = 36 (leaves 2 spaces margin)
+    receipt += padRight('AMOUNT DUE:', 24) + padLeft(formatMoney(total), 12) + '\n';
+    receipt += padRight('Cash:', 24) + padLeft(formatMoney(cashAmount), 12) + '\n';
+    receipt += padRight('CHANGE:', 24) + padLeft(formatMoney(change), 12) + '\n';
     receipt += thinLine() + '\n';
 
-    // FIXED: VAT section - 28 + 14 = 42
-    receipt += padRight('VATABLE SALES:', 28) + padLeft(formatMoney(subtotal), 14) + '\n';
-    receipt += padRight('VAT AMOUNT:', 28) + padLeft(formatMoney(tax), 14) + '\n';
+    // VAT section
+    receipt += padRight('VATABLE SALES:', 24) + padLeft(formatMoney(subtotal), 12) + '\n';
+    receipt += padRight('VAT AMOUNT:', 24) + padLeft(formatMoney(tax), 12) + '\n';
     receipt += line() + '\n';
-    receipt += padRight('Total Amount:', 28) + padLeft(formatMoney(total), 14) + '\n';
+    receipt += padRight('Total Amount:', 24) + padLeft(formatMoney(total), 12) + '\n';
     receipt += line() + '\n';
 
     receipt += center('POS Supplier: IRIPPLE, INC.') + '\n';
@@ -165,9 +165,9 @@ export const printReceipt = (saleData) => {
                     font-family: 'Courier New', 'Courier', monospace;
                     font-size: 9px;
                     font-weight: bold;
-                    width: 56mm;
+                    width: 58mm;
                     margin: 0;
-                    padding: 1.5mm;
+                    padding: 2mm;
                     background: white;
                 }
                 @media print {
@@ -177,7 +177,7 @@ export const printReceipt = (saleData) => {
                     }
                     body {
                         margin: 0;
-                        padding: 1.5mm;
+                        padding: 2mm;
                     }
                 }
                 pre {
