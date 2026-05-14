@@ -55,15 +55,21 @@ export const printReceipt = (saleData) => {
 
     const formatNumber = (num) => Number(num || 0).toLocaleString('en-PH');
 
-    const center = (text, width = 48) => {
+    const center = (text, width = 44) => {
         const padding = Math.max(0, (width - text.length) / 2);
         return ' '.repeat(Math.floor(padding)) + text;
     };
 
-    const line = (width = 48) => '='.repeat(width);
-    const thinLine = (width = 48) => '-'.repeat(width);
+    const line = (char = '=', width = 44) => char.repeat(width);
+    const thinLine = (char = '-', width = 44) => char.repeat(width);
 
-    const padText = (text, width) => {
+    const padLeft = (text, width) => {
+        const str = String(text);
+        if (str.length >= width) return str.substring(0, width);
+        return ' '.repeat(width - str.length) + str;
+    };
+
+    const padRight = (text, width) => {
         const str = String(text);
         if (str.length >= width) return str.substring(0, width);
         return str + ' '.repeat(width - str.length);
@@ -71,6 +77,7 @@ export const printReceipt = (saleData) => {
 
     let receipt = '\n';
 
+    // Header
     receipt += center('FRINCE WAREHOUSE INC') + '\n';
     receipt += center('Cebu City') + '\n';
     receipt += center('VAT REG TIN: 001-588-219-003') + '\n';
@@ -79,6 +86,7 @@ export const printReceipt = (saleData) => {
     receipt += center('SALES INVOICE') + '\n';
     receipt += line() + '\n';
 
+    // Transaction info
     receipt += `Terminal: ${terminalId}\n`;
     receipt += `Trans #: ${invoiceNumber}\n`;
     receipt += `SI #: ${invoiceNumber}\n`;
@@ -90,38 +98,43 @@ export const printReceipt = (saleData) => {
     receipt += `Bus. Style: ---\n`;
     receipt += thinLine() + '\n';
 
-    receipt += padText('ITEM', 28) + padText('QTY', 5) + padText('PRICE', 7) + padText('TOTAL', 8) + '\n';
+    // Column headers (fits in 44 chars: 24+4+7+7=42)
+    receipt += padRight('ITEM', 24) + padRight('QTY', 4) + padRight('PRICE', 7) + padRight('TOTAL', 7) + '\n';
     receipt += thinLine() + '\n';
 
+    // Items
     let totalItems = 0;
     items.forEach(item => {
-        const name = (item.name || 'Unknown Item').substring(0, 28);
+        const name = (item.name || 'Unknown Item').substring(0, 24);
         const quantity = item.quantity || 1;
         const price = item.unitPrice || item.sellingPrice || item.price || 0;
         const itemTotal = price * quantity;
         totalItems += quantity;
 
-        receipt += padText(name, 28);
-        receipt += padText(formatNumber(quantity), 5);
-        receipt += padText(formatMoney(price), 7);
-        receipt += padText(formatMoney(itemTotal), 8) + '\n';
+        receipt += padRight(name, 24);
+        receipt += padLeft(formatNumber(quantity), 4);
+        receipt += padLeft(formatMoney(price), 7);
+        receipt += padLeft(formatMoney(itemTotal), 7) + '\n';
     });
 
     receipt += thinLine() + '\n';
     receipt += center(`${formatNumber(totalItems)} Item(s)`) + '\n';
     receipt += line() + '\n';
 
-    receipt += padText('AMOUNT DUE:', 35) + padText(formatMoney(total), 13, 'right') + '\n';
-    receipt += padText('Cash:', 35) + padText(formatMoney(cashAmount), 13, 'right') + '\n';
-    receipt += padText('CHANGE:', 35) + padText(formatMoney(change), 13, 'right') + '\n';
+    // Payment (30 + 14 = 44)
+    receipt += padRight('AMOUNT DUE:', 30) + padLeft(formatMoney(total), 14) + '\n';
+    receipt += padRight('Cash:', 30) + padLeft(formatMoney(cashAmount), 14) + '\n';
+    receipt += padRight('CHANGE:', 30) + padLeft(formatMoney(change), 14) + '\n';
     receipt += thinLine() + '\n';
 
-    receipt += padText('VATABLE SALES:', 35) + padText(formatMoney(subtotal), 13, 'right') + '\n';
-    receipt += padText('VAT AMOUNT:', 35) + padText(formatMoney(tax), 13, 'right') + '\n';
+    // VAT
+    receipt += padRight('VATABLE SALES:', 30) + padLeft(formatMoney(subtotal), 14) + '\n';
+    receipt += padRight('VAT AMOUNT:', 30) + padLeft(formatMoney(tax), 14) + '\n';
     receipt += line() + '\n';
-    receipt += padText('Total Amount:', 35) + padText(formatMoney(total), 13, 'right') + '\n';
+    receipt += padRight('Total Amount:', 30) + padLeft(formatMoney(total), 14) + '\n';
     receipt += line() + '\n';
 
+    // Footer
     receipt += center('POS Supplier: IRIPPLE, INC.') + '\n';
     receipt += center('2305B EAST TOWER PSE CENTER') + '\n';
     receipt += center('EXCHANGE ROAD ORTIGAS CENTER') + '\n';
@@ -136,12 +149,14 @@ export const printReceipt = (saleData) => {
     receipt += center('*** END OF RECEIPT ***') + '\n';
     receipt += '\n\n';
 
+    // Print
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
             <title>Sales Invoice - ${invoiceNumber}</title>
+            <meta charset="UTF-8">
             <style>
                 * {
                     margin: 0;
@@ -150,11 +165,11 @@ export const printReceipt = (saleData) => {
                 }
                 body {
                     font-family: 'Courier New', 'Courier', monospace;
-                    font-size: 9.5px;
+                    font-size: 9px;
                     font-weight: bold;
                     width: 58mm;
                     margin: 0;
-                    padding: 2mm;
+                    padding: 1.5mm;
                     background: white;
                 }
                 @media print {
@@ -164,7 +179,7 @@ export const printReceipt = (saleData) => {
                     }
                     body {
                         margin: 0;
-                        padding: 2mm;
+                        padding: 1.5mm;
                     }
                 }
                 pre {
@@ -172,9 +187,9 @@ export const printReceipt = (saleData) => {
                     padding: 0;
                     white-space: pre;
                     font-family: 'Courier New', 'Courier', monospace;
-                    font-size: 9.5px;
+                    font-size: 9px;
                     font-weight: bold;
-                    line-height: 1.3;
+                    line-height: 1.25;
                 }
             </style>
         </head>
