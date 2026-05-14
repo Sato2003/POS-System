@@ -1,14 +1,14 @@
 export const printReceipt = (saleData) => {
     const {
-        invoiceNumber = 'INV-1778716060286',
+        invoiceNumber = 'INV-1778717363985',
         items = [],
-        subtotal = 206.00,
-        tax = 24.72,
-        total = 230.72,
+        subtotal = 102.00,
+        tax = 12.24,
+        total = 114.24,
         customerName = 'Walk-in Customer',
         cashierName = 'akisato',
-        cashAmount = 400.00,
-        change = 169.28,
+        cashAmount = 200.00,
+        change = 85.76,
         baggerName = 'AKISATO',
         terminalId = 'POS_PAR12'
     } = saleData;
@@ -60,18 +60,20 @@ export const printReceipt = (saleData) => {
         return ' '.repeat(Math.floor(padding)) + text;
     };
 
-    const line = (width = 48) => '='.repeat(width);
-    const thinLine = (width = 48) => '-'.repeat(width);
+    const line = (char = '=', width = 48) => char.repeat(width);
+    const thinLine = (char = '-', width = 48) => char.repeat(width);
 
-    const padText = (text, width) => {
+    const padText = (text, width, align = 'left') => {
         const str = String(text);
         if (str.length >= width) return str.substring(0, width);
+        if (align === 'right') return ' '.repeat(width - str.length) + str;
         return str + ' '.repeat(width - str.length);
     };
 
-    let receipt = '';
+    let receipt = '\n';
 
-    receipt += '\n' + center('FRINCE WAREHOUSE INC') + '\n';
+    // Header
+    receipt += center('FRINCE WAREHOUSE INC') + '\n';
     receipt += center('Cebu City') + '\n';
     receipt += center('VAT REG TIN: 001-588-219-003') + '\n';
     receipt += center('SN: Z2APETRG MIN: 120277459') + '\n';
@@ -79,6 +81,7 @@ export const printReceipt = (saleData) => {
     receipt += center('SALES INVOICE') + '\n';
     receipt += line() + '\n';
 
+    // Transaction info
     receipt += `Terminal: ${terminalId}\n`;
     receipt += `Trans #: ${invoiceNumber}\n`;
     receipt += `SI #: ${invoiceNumber}\n`;
@@ -90,9 +93,11 @@ export const printReceipt = (saleData) => {
     receipt += `Bus. Style: ---\n`;
     receipt += thinLine() + '\n';
 
-    receipt += padText('ITEM', 28) + padText('QTY', 5) + padText('PRICE', 8) + padText('TOTAL', 7) + '\n';
+    // Column headers
+    receipt += padText('ITEM', 28) + padText('QTY', 5) + padText('PRICE', 7) + padText('TOTAL', 8) + '\n';
     receipt += thinLine() + '\n';
 
+    // Items
     let totalItems = 0;
     items.forEach(item => {
         const name = (item.name || 'Unknown Item').substring(0, 28);
@@ -103,25 +108,28 @@ export const printReceipt = (saleData) => {
 
         receipt += padText(name, 28);
         receipt += padText(formatNumber(quantity), 5);
-        receipt += padText(formatMoney(price), 8);
-        receipt += padText(formatMoney(itemTotal), 7) + '\n';
+        receipt += padText(formatMoney(price), 7);
+        receipt += padText(formatMoney(itemTotal), 8) + '\n';
     });
 
     receipt += thinLine() + '\n';
-    receipt += padText(` ${formatNumber(totalItems)} Item(s) `, 48) + '\n';
+    receipt += center(`${formatNumber(totalItems)} Item(s)`) + '\n';
     receipt += line() + '\n';
 
-    receipt += padText('AMOUNT DUE:', 35) + padText(formatMoney(total), 13) + '\n';
-    receipt += padText('Cash:', 35) + padText(formatMoney(cashAmount), 13) + '\n';
-    receipt += padText('CHANGE:', 35) + padText(formatMoney(change), 13) + '\n';
+    // Payment
+    receipt += padText('AMOUNT DUE:', 35) + padText(formatMoney(total), 13, 'right') + '\n';
+    receipt += padText('Cash:', 35) + padText(formatMoney(cashAmount), 13, 'right') + '\n';
+    receipt += padText('CHANGE:', 35) + padText(formatMoney(change), 13, 'right') + '\n';
     receipt += thinLine() + '\n';
 
-    receipt += padText('VATABLE SALES:', 35) + padText(formatMoney(subtotal), 13) + '\n';
-    receipt += padText('VAT AMOUNT:', 35) + padText(formatMoney(tax), 13) + '\n';
+    // VAT
+    receipt += padText('VATABLE SALES:', 35) + padText(formatMoney(subtotal), 13, 'right') + '\n';
+    receipt += padText('VAT AMOUNT:', 35) + padText(formatMoney(tax), 13, 'right') + '\n';
     receipt += line() + '\n';
-    receipt += padText('Total Amount:', 35) + padText(formatMoney(total), 13) + '\n';
+    receipt += padText('Total Amount:', 35) + padText(formatMoney(total), 13, 'right') + '\n';
     receipt += line() + '\n';
 
+    // Footer
     receipt += center('POS Supplier: IRIPPLE, INC.') + '\n';
     receipt += center('2305B EAST TOWER PSE CENTER') + '\n';
     receipt += center('EXCHANGE ROAD ORTIGAS CENTER') + '\n';
@@ -130,23 +138,15 @@ export const printReceipt = (saleData) => {
     receipt += center(`Date Issued: ${getIssueDate()}`) + '\n';
     receipt += center(`Valid Until: ${getExpirationDate()}`) + '\n';
     receipt += line() + '\n';
-
     receipt += center('Thank you for shopping with us!') + '\n';
     receipt += center('THIS SERVES AS YOUR SALES INVOICE') + '\n';
     receipt += center(`Printed: ${formatDateTime(now)}`) + '\n';
     receipt += center('*** END OF RECEIPT ***') + '\n';
     receipt += '\n\n';
 
-    const printFrame = document.createElement('iframe');
-    printFrame.style.position = 'absolute';
-    printFrame.style.width = '0';
-    printFrame.style.height = '0';
-    printFrame.style.border = 'none';
-    document.body.appendChild(printFrame);
-
-    const frameDoc = printFrame.contentWindow.document;
-    frameDoc.open();
-    frameDoc.write(`
+    // Print
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -159,11 +159,12 @@ export const printReceipt = (saleData) => {
                 }
                 body {
                     font-family: 'Courier New', 'Courier', monospace;
-                    font-size: 9.5px;
+                    font-size: 10px;
                     font-weight: bold;
                     width: 58mm;
-                    margin: 0;
+                    margin: 0 auto;
                     padding: 1.5mm;
+                    background: white;
                 }
                 @media print {
                     @page {
@@ -180,22 +181,24 @@ export const printReceipt = (saleData) => {
                     padding: 0;
                     white-space: pre-wrap;
                     font-family: 'Courier New', 'Courier', monospace;
-                    font-size: 9.5px;
+                    font-size: 10px;
                     font-weight: bold;
-                    line-height: 1.3;
+                    line-height: 1.25;
                 }
             </style>
         </head>
         <body>
             <pre>${receipt}</pre>
             <script>
-                window.print();
-                setTimeout(function() {
-                    window.parent.document.body.removeChild(window.frameElement);
-                }, 1000);
+                window.onload = function() {
+                    window.print();
+                    setTimeout(function() {
+                        window.close();
+                    }, 1000);
+                };
             <\/script>
         </body>
         </html>
     `);
-    frameDoc.close();
+    printWindow.document.close();
 };
